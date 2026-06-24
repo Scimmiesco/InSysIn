@@ -1,0 +1,7 @@
+.stats {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    background-color: lightblue;
+    border-radius: 0.5rem;
+}
