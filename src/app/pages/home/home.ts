@@ -5,7 +5,6 @@ import {
   obterHistorico,
   obterProcessosAgrupados,
 } from "../../../generated/commands";
-// Certifique-se de exportar ProcessoAgrupado do seu arquivo de types
 import {
   HistoricoCompleto,
   SysStats,
@@ -14,18 +13,15 @@ import {
 
 @Component({
   selector: "app-home",
-  imports: [DecimalPipe, DatePipe], // Adicionei o DatePipe aqui
+  imports: [DecimalPipe, DatePipe],
   templateUrl: "./home.html",
   styleUrl: "./home.css",
 })
 export class Home implements OnInit {
   sys_info = signal<SysStats | null>(null);
   sys_history = signal<HistoricoCompleto | null>(null);
-
-  // NOVO: Signal para a tabela agrupada
   processos_agrupados = signal<ProcessoAgrupado[]>([]);
 
-  // NOVO: Controle de qual coluna está ativa e a direção da seta
   ordenacaoAtual = signal<{ coluna: string; desc: boolean }>({
     coluna: "memoria",
     desc: true,
@@ -34,43 +30,56 @@ export class Home implements OnInit {
   ngOnInit(): void {
     this.lerDados();
     this.obterHistorico();
-
-    // Carrega a tabela já ordenada por memória logo que a tela abre
     this.filtrarPor("memoria");
 
     setInterval(() => {
       this.lerDados();
     }, 1000);
+
+    // Atualiza o histórico a cada 30 segundos
+    setInterval(() => {
+      this.obterHistorico();
+    }, 30000);
   }
 
   async obterHistorico() {
-    obterHistorico().then((res) => {
+    try {
+      const res = await obterHistorico();
       this.sys_history.set(res);
-    });
+    } catch (erro) {
+      console.error("Erro ao obter histórico:", erro);
+    }
   }
 
   async lerDados() {
-    lerHardware().then((res) => {
+    try {
+      const res = await lerHardware();
       this.sys_info.set(res);
-    });
+    } catch (erro) {
+      console.error("Erro ao ler hardware:", erro);
+    }
   }
 
-  // NOVO: Lógica simplificada de clique
   async filtrarPor(coluna: string) {
     try {
       const atual = this.ordenacaoAtual();
-
-      // Se clicou na mesma coluna, inverte a ordem. Se clicou em outra, padrão é decrescente (true)
       const desc = atual.coluna === coluna ? !atual.desc : true;
-
-      // Salva o novo estado visual
       this.ordenacaoAtual.set({ coluna, desc });
-
-      // Busca no SQLite passando as variáveis corretas
       const dados = await obterProcessosAgrupados(coluna, desc);
       this.processos_agrupados.set(dados);
     } catch (erro) {
       console.error("Erro ao buscar dados agrupados:", erro);
     }
+  }
+
+  /** Retorna os registros de histórico do sistema (CPU + RAM) */
+  get statsHistory(): { cpu: number; ram: number; hora: string }[] {
+    const h = this.sys_history();
+    if (!h?.uso_sistema) return [];
+    return h.uso_sistema.slice(-20).map((s: any) => ({
+      cpu: s.cpu_usage ?? 0,
+      ram: ((s.used_memory ?? 0) / 1_073_741_824),
+      hora: new Date(s.data_hora ?? Date.now()).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+    }));
   }
 }
