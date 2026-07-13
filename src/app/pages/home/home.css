@@ -4,25 +4,28 @@
     flex-direction: column;
     gap: 12px;
     padding: 12px;
-    color: #cfcfcf;
-    background: #161616;
-    height: 100vh;
+    color: #d4d4d4;
+    background: #0d1117;
+    min-height: 100vh;
     box-sizing: border-box;
     overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 .block {
-    background: #1e1e1e;
-    border-radius: 4px;
-    padding: 10px 14px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 12px 16px;
 }
 
 h3 {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: #707070;
-    margin: 0 0 6px;
+    color: #8b949e;
+    margin: 0 0 8px;
+    font-weight: 600;
 }
 
 /* ── memory ── */
@@ -32,15 +35,113 @@ h3 {
 }
 
 .label {
-    color: #707070;
+    color: #8b949e;
     font-size: 11px;
     margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .val {
-    font-family: "SF Mono", "Fira Code", monospace;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
     font-size: 13px;
-    color: #dcdcdc;
+    color: #c9d1d9;
+}
+
+/* ── cpu bar ── */
+.cpu-bar-container {
+    position: relative;
+    height: 24px;
+    background: #21262d;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cpu-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #58a6ff, #1f6feb);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    min-width: 2px;
+}
+
+.cpu-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #f0f6fc;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+/* ── system history chart (novo!) ── */
+.sys-hist {
+    min-height: 120px;
+}
+
+.hist-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hist-bar-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 60px;
+}
+
+.hist-col {
+    flex: 1;
+    min-width: 8px;
+    background: linear-gradient(180deg, #1f6feb, #58a6ff);
+    border-radius: 2px 2px 0 0;
+    position: relative;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.hist-col:hover {
+    opacity: 0.8;
+}
+
+.hist-col:hover .hist-tooltip {
+    display: block;
+}
+
+.hist-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #21262d;
+    color: #c9d1d9;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    border: 1px solid #30363d;
+    z-index: 10;
+}
+
+.hist-labels {
+    display: flex;
+    gap: 2px;
+}
+
+.hist-label {
+    flex: 1;
+    font-size: 8px;
+    color: #8b949e;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ── tables ── */
@@ -53,29 +154,46 @@ table {
 
 th {
     text-align: left;
-    font-weight: 400;
-    color: #707070;
+    font-weight: 600;
+    color: #8b949e;
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    padding: 2px 4px;
-    border-bottom: 1px solid #2a2a2a;
+    padding: 4px 6px;
+    border-bottom: 1px solid #30363d;
+    user-select: none;
+}
+
+th:hover {
+    color: #58a6ff;
 }
 
 td {
-    padding: 3px 4px;
+    padding: 4px 6px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+tbody tr {
+    transition: background 0.15s;
+}
+
 tbody tr:hover {
-    background: #2a2a2a;
+    background: #1c2128;
+}
+
+tbody tr:nth-child(even) {
+    background: #0d1117;
+}
+
+tbody tr:nth-child(even):hover {
+    background: #1c2128;
 }
 
 .num {
     text-align: right;
-    font-family: "SF Mono", "Fira Code", monospace;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
     font-variant-numeric: tabular-nums;
 }
 
@@ -94,4 +212,22 @@ tbody tr:hover {
     display: table;
     width: 100%;
     table-layout: fixed;
+}
+
+/* scrollbar style */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
 }
