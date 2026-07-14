@@ -36,7 +36,7 @@
   <div class="hist-chart">
     <div class="hist-bar-group">
       @for(s of statsHistory; track $index) {
-        <div class="hist-col" [style.height.%]="Math.min(s.cpu, 100)">
+        <div class="hist-col" >
           <div class="hist-tooltip">{{ s.cpu | number:'1.1-1' }}% / {{ s.ram | number:'1.1-1' }}GB</div>
         </div>
       }

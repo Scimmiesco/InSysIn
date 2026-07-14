@@ -1,4 +1,4 @@
-import { DecimalPipe, DatePipe } from "@angular/common";
+import { DecimalPipe, DatePipe, CommonModule } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
 import {
   lerHardware,
@@ -13,7 +13,7 @@ import {
 
 @Component({
   selector: "app-home",
-  imports: [DecimalPipe, DatePipe],
+  imports: [DecimalPipe, DatePipe, CommonModule ],
   templateUrl: "./home.html",
   styleUrl: "./home.css",
 })
@@ -75,10 +75,10 @@ export class Home implements OnInit {
   /** Retorna os registros de histórico do sistema (CPU + RAM) */
   get statsHistory(): { cpu: number; ram: number; hora: string }[] {
     const h = this.sys_history();
-    if (!h?.uso_sistema) return [];
-    return h.uso_sistema.slice(-20).map((s: any) => ({
-      cpu: s.cpu_usage ?? 0,
-      ram: ((s.used_memory ?? 0) / 1_073_741_824),
+    if (!h?.sistema) return [];
+    return h.sistema.slice(-20).map((s: any) => ({
+      cpu: s.cpu_global ?? 0,
+      ram: ((s.ram_usada ?? 0) / 1_073_741_824),
       hora: new Date(s.data_hora ?? Date.now()).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
     }));
   }
