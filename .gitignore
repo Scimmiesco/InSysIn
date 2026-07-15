@@ -46,3 +46,6 @@ Thumbs.db
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+
+# Environment variables (contains secrets)
+.env

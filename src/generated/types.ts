@@ -47,5 +47,6 @@ export interface HistoricoSistema {
   data_hora: string;
   cpu_global: number;
   ram_usada: number;
+  ram_total: number;
 }
 

@@ -5,6 +5,7 @@ pub struct HistoricoSistema {
     pub data_hora: String,
     pub cpu_global: f32,
     pub ram_usada: u64,
+    pub ram_total: u64,
 }
 
 #[derive(Serialize)]

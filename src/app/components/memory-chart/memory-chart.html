@@ -1,0 +1,19 @@
+<div class="chart-wrap">
+  <svg [attr.viewBox]="viewBox()" preserveAspectRatio="none" class="mem-line">
+    @if (stddevPath()) {
+      <path [attr.d]="stddevPath()" class="stddev-band" />
+    }
+    @if (linePoints()) {
+      <polyline [attr.points]="linePoints()" class="mem-polyline" />
+    }
+  </svg>
+</div>
+<div class="hist-labels">
+  @for(lbl of labels(); track lbl.xPct) {
+    <span class="hist-label" [style.left.%]="lbl.xPct">{{ lbl.time }}</span>
+  }
+</div>
+<div class="hist-legend">
+  <span class="legend-item"><span class="legend-line"></span> RAM</span>
+  <span class="legend-item"><span class="legend-band"></span> StdDev</span>
+</div>

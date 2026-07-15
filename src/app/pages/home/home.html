@@ -5,16 +5,16 @@
     <div>
       <span class="label">RAM</span>
       <span class="val"
-        >{{ ((sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824) |
-        number:'1.1-1' }} / {{ ((sys_info()?.mem_info?.total_memory ?? 0) /
+        >{{ ((store.sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824) |
+        number:'1.1-1' }} / {{ ((store.sys_info()?.mem_info?.total_memory ?? 0) /
         1_073_741_824) | number:'1.1-1' }} GB</span
       >
     </div>
     <div>
       <span class="label">Swap</span>
       <span class="val"
-        >{{ ((sys_info()?.mem_info?.used_swap ?? 0) / 1_073_741_824) |
-        number:'1.1-1' }} / {{ ((sys_info()?.mem_info?.total_swap ?? 0) /
+        >{{ ((store.sys_info()?.mem_info?.used_swap ?? 0) / 1_073_741_824) |
+        number:'1.1-1' }} / {{ ((store.sys_info()?.mem_info?.total_swap ?? 0) /
         1_073_741_824) | number:'1.1-1' }} GB</span
       >
     </div>
@@ -25,28 +25,15 @@
 <section class="block cpu">
   <h3>CPU</h3>
   <div class="cpu-bar-container">
-    <div class="cpu-bar" [style.width.%]="sys_info()?.cpu_usage ?? 0"></div>
-    <span class="cpu-label">{{ (sys_info()?.cpu_usage ?? 0) | number:'1.1-1' }}%</span>
+    <div class="cpu-bar" [style.width.%]="store.sys_info()?.cpu_usage ?? 0"></div>
+    <span class="cpu-label">{{ (store.sys_info()?.cpu_usage ?? 0) | number:'1.1-1' }}%</span>
   </div>
 </section>
 
-<!-- SYSTEM HISTORY (novo!) -->
+<!-- MEMORY HISTORY -->
 <section class="block sys-hist">
-  <h3>System History (last 20 snapshots)</h3>
-  <div class="hist-chart">
-    <div class="hist-bar-group">
-      @for(s of statsHistory; track $index) {
-        <div class="hist-col" >
-          <div class="hist-tooltip">{{ s.cpu | number:'1.1-1' }}% / {{ s.ram | number:'1.1-1' }}GB</div>
-        </div>
-      }
-    </div>
-    <div class="hist-labels">
-      @for(s of statsHistory; track $index) {
-        <span class="hist-label">{{ s.hora }}</span>
-      }
-    </div>
-  </div>
+  <h3>Memory Usage (last 3 min)</h3>
+  <app-memory-chart [readings]="store.memReadings()" />
 </section>
 
 <!-- PROCESSES -->
@@ -61,10 +48,10 @@
       </tr>
     </thead>
     <tbody>
-      @for(p of sys_info()?.processes; track p.pid) {
+      @for(p of store.sys_info()?.processes; track p.pid) {
       <tr>
         <td>{{ p.name }}</td>
-        <td class="num">{{ (p.cpu_usage / 100) | number:'1.1-1' }}%</td>
+        <td class="num">{{ p.cpu_usage | number:'1.1-1' }}%</td>
         <td class="num">
           {{ (p.memory_usage / 1_048_576) | number:'1.1-1' }} MB
         </td>
@@ -80,30 +67,30 @@
   <table>
     <thead>
       <tr>
-        <th (click)="filtrarPor('nome')" style="cursor: pointer">
-          Name @if (ordenacaoAtual().coluna === 'nome') {
-          <span>{{ ordenacaoAtual().desc ? '▼' : '▲' }}</span>
+        <th (click)="store.filtrarPor('nome')" style="cursor: pointer">
+          Name @if (store.ordenacaoAtual().coluna === 'nome') {
+          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
           }
         </th>
-        <th class="num" (click)="filtrarPor('cpu')" style="cursor: pointer">
-          CPU Total @if (ordenacaoAtual().coluna === 'cpu') {
-          <span>{{ ordenacaoAtual().desc ? '▼' : '▲' }}</span>
+        <th class="num" (click)="store.filtrarPor('cpu')" style="cursor: pointer">
+          CPU Total @if (store.ordenacaoAtual().coluna === 'cpu') {
+          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
           }
         </th>
-        <th class="num" (click)="filtrarPor('memoria')" style="cursor: pointer">
-          Memory Total @if (ordenacaoAtual().coluna === 'memoria') {
-          <span>{{ ordenacaoAtual().desc ? '▼' : '▲' }}</span>
+        <th class="num" (click)="store.filtrarPor('memoria')" style="cursor: pointer">
+          Memory Total @if (store.ordenacaoAtual().coluna === 'memoria') {
+          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
           }
         </th>
-        <th class="num" (click)="filtrarPor('data')" style="cursor: pointer">
-          Last Seen @if (ordenacaoAtual().coluna === 'data') {
-          <span>{{ ordenacaoAtual().desc ? '▼' : '▲' }}</span>
+        <th class="num" (click)="store.filtrarPor('data')" style="cursor: pointer">
+          Last Seen @if (store.ordenacaoAtual().coluna === 'data') {
+          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
           }
         </th>
       </tr>
     </thead>
     <tbody>
-      @for(h of processos_agrupados(); track h.nome) {
+      @for(h of store.processos_agrupados(); track h.nome) {
       <tr>
         <td>{{ h.nome }}</td>
         <td class="num">{{ h.total_cpu | number:'1.1-1' }}%</td>

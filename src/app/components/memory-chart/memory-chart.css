@@ -1,0 +1,78 @@
+:host {
+  display: block;
+}
+
+.chart-wrap {
+  height: 150px;
+  position: relative;
+  border-bottom: 1px solid #30363d;
+  background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 29px,
+      rgba(48, 54, 61, 0.3) 29px,
+      rgba(48, 54, 61, 0.3) 30px
+  );
+}
+
+.mem-line {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mem-polyline {
+  fill: none;
+  stroke: #58a6ff;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.stddev-band {
+  fill: rgba(88, 166, 255, 0.12);
+  stroke: none;
+}
+
+.hist-labels {
+  position: relative;
+  height: 16px;
+  margin: 0 0 4px;
+}
+
+.hist-label {
+  position: absolute;
+  font-size: 9px;
+  color: #8b949e;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.hist-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  color: #8b949e;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 16px;
+  height: 2px;
+  background: #58a6ff;
+  border-radius: 1px;
+}
+
+.legend-band {
+  display: inline-block;
+  width: 16px;
+  height: 10px;
+  background: rgba(88, 166, 255, 0.2);
+  border-radius: 1px;
+}

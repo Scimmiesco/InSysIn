@@ -1,4 +1,3 @@
-/* ── layout ── */
 :host {
     display: flex;
     flex-direction: column;
@@ -28,7 +27,6 @@ h3 {
     font-weight: 600;
 }
 
-/* ── memory ── */
 .mem-cols {
     display: flex;
     gap: 32px;
@@ -48,7 +46,6 @@ h3 {
     color: #c9d1d9;
 }
 
-/* ── cpu bar ── */
 .cpu-bar-container {
     position: relative;
     height: 24px;
@@ -77,74 +74,10 @@ h3 {
     text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
-/* ── system history chart (novo!) ── */
 .sys-hist {
     min-height: 120px;
 }
 
-.hist-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.hist-bar-group {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 60px;
-}
-
-.hist-col {
-    flex: 1;
-    min-width: 8px;
-    background: linear-gradient(180deg, #1f6feb, #58a6ff);
-    border-radius: 2px 2px 0 0;
-    position: relative;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.hist-col:hover {
-    opacity: 0.8;
-}
-
-.hist-col:hover .hist-tooltip {
-    display: block;
-}
-
-.hist-tooltip {
-    display: none;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #21262d;
-    color: #c9d1d9;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    border: 1px solid #30363d;
-    z-index: 10;
-}
-
-.hist-labels {
-    display: flex;
-    gap: 2px;
-}
-
-.hist-label {
-    flex: 1;
-    font-size: 8px;
-    color: #8b949e;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ── tables ── */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -197,7 +130,6 @@ tbody tr:nth-child(even):hover {
     font-variant-numeric: tabular-nums;
 }
 
-/* ── scroll ── */
 .proc table,
 .hist table {
     display: block;
@@ -214,7 +146,6 @@ tbody tr:nth-child(even):hover {
     table-layout: fixed;
 }
 
-/* scrollbar style */
 ::-webkit-scrollbar {
     width: 6px;
 }
