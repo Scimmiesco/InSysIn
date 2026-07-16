@@ -6,13 +6,13 @@ use tauri::State;
 const SAVE_INTERVAL_SECS: u64 = 180;
 
 #[tauri::command]
-pub fn ler_hardware(state: State<'_, AppState>) -> crate::models::hardware::SysStats {
-    let mut sys = state.sys.lock().expect("sys mutex poisoned");
-    let mut disks = state.disks.lock().expect("disks mutex poisoned");
-    let mut networks = state.networks.lock().expect("networks mutex poisoned");
+pub fn ler_hardware(state: State<'_, AppState>) -> Result<crate::models::hardware::SysStats, String> {
+    let mut sys = state.sys.lock().map_err(|e| format!("sys lock: {}", e))?;
+    let mut disks = state.disks.lock().map_err(|e| format!("disks lock: {}", e))?;
+    let mut networks = state.networks.lock().map_err(|e| format!("networks lock: {}", e))?;
     let stats = hardware_service::coletar_dados(&mut sys, &mut disks, &mut networks);
 
-    let mut last_save = state.last_db_save.lock().expect("last_db_save mutex poisoned");
+    let mut last_save = state.last_db_save.lock().map_err(|e| format!("last_save lock: {}", e))?;
 
     if last_save.elapsed().as_secs() >= SAVE_INTERVAL_SECS {
         match db_service::salvar_snapshot(&stats) {
@@ -22,5 +22,5 @@ pub fn ler_hardware(state: State<'_, AppState>) -> crate::models::hardware::SysS
         *last_save = Instant::now();
     }
 
-    stats
+    Ok(stats)
 }
