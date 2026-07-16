@@ -1,0 +1,176 @@
+<section class="dashboard">
+  <div class="header-bar">
+    <span class="header-title">Network Dashboard</span>
+    @if (store.dashboard()) {
+      <span class="live-badge">
+        <span class="live-dot"></span>
+        Live
+      </span>
+    }
+  </div>
+
+  <div class="group-box">
+    <div class="group-title">
+      Traffic
+      <span class="group-sub">↓ {{ formatTotal(store.dashboard()?.traffic?.total_received ?? 0) }} total · ↑ {{ formatTotal(store.dashboard()?.traffic?.total_transmitted ?? 0) }} total</span>
+    </div>
+    @if (store.dashboard()?.traffic?.physical?.length) {
+      <div class="group-label">Physical</div>
+      <div class="iface-grid">
+        @for (iface of store.dashboard()?.traffic?.physical; track iface.name) {
+          <div class="iface-card">
+            <div class="iface-name" [attr.data-tip]="interfaceTip(iface)">{{ iface.name }}</div>
+            <div class="iface-ips">{{ iface.ip_addresses.join(', ') || '—' }}</div>
+            <div class="iface-rates">
+              <span class="rate-down" [attr.data-tip]="rateRxTip(iface)">↓ Rx {{ rateValue(iface, 'rx') }}</span>
+              <span class="rate-up" [attr.data-tip]="rateTxTip(iface)">↑ Tx {{ rateValue(iface, 'tx') }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    @if (store.dashboard()?.traffic?.virtual_ifaces?.length) {
+      <div class="group-label">Virtual</div>
+      <div class="iface-grid">
+        @for (iface of store.dashboard()?.traffic?.virtual_ifaces; track iface.name) {
+          <div class="iface-card">
+            <div class="iface-name" [attr.data-tip]="interfaceTip(iface)">{{ iface.name }}</div>
+            <div class="iface-ips">{{ iface.ip_addresses.join(', ') || '—' }}</div>
+            <div class="iface-rates">
+              <span class="rate-down" [attr.data-tip]="rateRxTip(iface)">↓ Rx {{ rateValue(iface, 'rx') }}</span>
+              <span class="rate-up" [attr.data-tip]="rateTxTip(iface)">↑ Tx {{ rateValue(iface, 'tx') }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    @if (store.dashboard()?.traffic?.special?.length) {
+      <div class="group-label">Special</div>
+      <div class="iface-grid">
+        @for (iface of store.dashboard()?.traffic?.special; track iface.name) {
+          <div class="iface-card">
+            <div class="iface-name" [attr.data-tip]="interfaceTip(iface)">{{ iface.name }}</div>
+            <div class="iface-ips">{{ iface.ip_addresses.join(', ') || '—' }}</div>
+            <div class="iface-rates">
+              <span class="rate-down" [attr.data-tip]="rateRxTip(iface)">↓ Rx {{ rateValue(iface, 'rx') }}</span>
+              <span class="rate-up" [attr.data-tip]="rateTxTip(iface)">↑ Tx {{ rateValue(iface, 'tx') }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="group-box">
+    <div class="group-title">Connection Summary</div>
+    <div class="stats-grid">
+      <div class="stat-card" data-tip="Total active network connections">
+        <span class="stat-value">{{ store.dashboard()?.stats?.total ?? 0 }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-card" data-tip="Connections using TCP — reliable, ordered delivery">
+        <span class="stat-value">{{ store.dashboard()?.stats?.tcp ?? 0 }}</span>
+        <span class="stat-label">TCP</span>
+      </div>
+      <div class="stat-card" data-tip="Connections using UDP — fast, no ordering guarantee">
+        <span class="stat-value">{{ store.dashboard()?.stats?.udp ?? 0 }}</span>
+        <span class="stat-label">UDP</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value stat-established">{{ store.dashboard()?.stats?.established ?? 0 }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value stat-listen-val">{{ store.dashboard()?.stats?.listening ?? 0 }}</span>
+        <span class="stat-label">Listening</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value stat-closing">{{ (store.dashboard()?.stats?.close_wait ?? 0) + (store.dashboard()?.stats?.time_wait ?? 0) }}</span>
+        <span class="stat-label">Closing</span>
+      </div>
+    </div>
+  </div>
+
+  @if (store.dashboard()?.listening_services?.length) {
+    <div class="group-box">
+      <div class="group-title">Listening Services</div>
+      <div class="mini-table">
+        <div class="mini-th">
+          <span>Service</span>
+          <span>Process</span>
+          <span>Address</span>
+        </div>
+        @for (svc of store.dashboard()?.listening_services; track svc.pid + svc.local) {
+          <div class="mini-tr" [title]="svcTip(svc)">
+            <span class="svc-port">{{ svc.port_desc }}</span>
+            <span class="svc-proc">{{ svc.process_name }}</span>
+            <span class="svc-addr">{{ svc.local }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (store.dashboard()?.top_processes?.length) {
+    <div class="group-box">
+      <div class="group-title">Top Network Processes</div>
+      <div class="mini-table">
+        <div class="mini-th">
+          <span>Process</span>
+          <span>Connections</span>
+          <span>Protocols</span>
+        </div>
+        @for (pc of store.dashboard()?.top_processes; track pc.process_name) {
+          <div class="mini-tr" [title]="procTip(pc)">
+            <span class="svc-proc">{{ pc.process_name }}</span>
+            <span class="svc-port">{{ pc.count }}</span>
+            <span class="svc-proto">
+              @for (tag of listPcs(pc); track tag) {
+                <span class="proto-tag">{{ tag }}</span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="group-box">
+    <div class="group-title">All Connections</div>
+    <div class="conn-section">
+      <div class="conn-header">
+        <span class="col-proto" data-tip="TCP = reliable connections (web, email). UDP = faster (streaming, DNS).">Proto</span>
+        <span class="col-proc" data-tip="The application that owns this network connection.">Process</span>
+        <span class="col-addr" data-tip="Your computer → the destination. Format IP:port">Local → Remote</span>
+        <span class="col-state" data-tip="ESTABLISHED = active, LISTEN = waiting, CLOSE_WAIT = closing">State</span>
+        <span class="col-pid" data-tip="Process ID — unique number for the running program.">PID</span>
+      </div>
+      <div class="conn-list">
+        @for (conn of store.dashboard()?.connections; track conn.pid + conn.local + conn.remote) {
+          <div class="conn-row" [title]="connTip(conn)">
+            <span class="col-proto">{{ conn.protocol }}</span>
+            <span class="col-proc">{{ conn.process_name }}</span>
+            <span class="col-addr">
+              <span class="addr-local">{{ conn.local }}</span>
+              @if (conn.remote) {
+                <span class="addr-arrow">→</span>
+                <span class="addr-remote">{{ conn.remote }}</span>
+              }
+            </span>
+            <span class="col-state">
+              <span class="state-badge state-{{ conn.state | lowercase }}">{{ conn.state || '—' }}</span>
+            </span>
+            <span class="col-pid">{{ conn.pid || '—' }}</span>
+          </div>
+        } @empty {
+          <div class="conn-empty">No active connections</div>
+        }
+      </div>
+    </div>
+    <div class="state-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> ESTABLISHED</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> LISTEN</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#d29922"></span> CLOSE_WAIT / TIME_WAIT</span>
+    </div>
+  </div>
+</section>

@@ -45,11 +45,15 @@ pub fn run() {
             let light = MenuItem::with_id(h, "theme_light", "Light Theme", true, None::<&str>)?;
             let theme_sub = Submenu::with_items(h, "Theme", true, &[&dark, &light])?;
 
+            let network_item = MenuItem::with_id(h, "navigate_network", "Network Dashboard", true, None::<&str>)?;
+
             #[cfg(target_os = "macos")]
             let view_menu = Submenu::with_items(h, "View", true, &[
                 &PredefinedMenuItem::fullscreen(h, None)?,
                 &sep()?,
                 &theme_sub,
+                &sep()?,
+                &network_item,
             ])?;
 
             #[cfg(not(target_os = "macos"))]
@@ -57,6 +61,8 @@ pub fn run() {
                 &theme_sub,
                 &sep()?,
                 &PredefinedMenuItem::fullscreen(h, None)?,
+                &sep()?,
+                &network_item,
             ])?;
 
             let window_menu = Submenu::with_id_and_items(
@@ -122,6 +128,7 @@ pub fn run() {
             match event.id().as_ref() {
                 "theme_dark" => { let _ = app.emit("theme-changed", "dark"); }
                 "theme_light" => { let _ = app.emit("theme-changed", "light"); }
+                "navigate_network" => { let _ = app.emit("navigate", "/network"); }
                 _ => {}
             }
         })
@@ -129,6 +136,7 @@ pub fn run() {
             commands::hardware::ler_hardware,
             commands::historico::obter_historico,
             commands::historico::obter_processos_agrupados,
+            commands::network::ler_rede,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

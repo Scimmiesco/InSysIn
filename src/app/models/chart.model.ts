@@ -3,8 +3,3 @@ export interface MemReading {
   cpuPct: number;
   time: Date;
 }
-
-export interface ChartLabel {
-  xPct: string;
-  time: string;
-}

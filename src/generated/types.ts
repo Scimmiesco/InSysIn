@@ -81,3 +81,62 @@ export interface HistoricoSistema {
   ram_usada: number;
   ram_total: number;
 }
+
+export interface NetworkInterface {
+  name: string;
+  ip_addresses: string[];
+  received_bytes: number;
+  transmitted_bytes: number;
+  received_packets: number;
+  transmitted_packets: number;
+}
+
+export interface NetConnection {
+  pid: number;
+  process_name: string;
+  protocol: string;
+  local: string;
+  remote: string;
+  state: string;
+}
+
+export interface TrafficSummary {
+  total_received: number;
+  total_transmitted: number;
+  physical: NetworkInterface[];
+  virtual_ifaces: NetworkInterface[];
+  special: NetworkInterface[];
+}
+
+export interface ConnectionStats {
+  total: number;
+  tcp: number;
+  udp: number;
+  established: number;
+  listening: number;
+  close_wait: number;
+  time_wait: number;
+}
+
+export interface ProcessConnection {
+  process_name: string;
+  count: number;
+  tcp_count: number;
+  udp_count: number;
+}
+
+export interface ListeningService {
+  process_name: string;
+  pid: number;
+  protocol: string;
+  local: string;
+  port_desc: string;
+}
+
+export interface NetworkDashboard {
+  traffic: TrafficSummary;
+  connections: NetConnection[];
+  stats: ConnectionStats;
+  top_processes: ProcessConnection[];
+  listening_services: ListeningService[];
+}
