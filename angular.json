@@ -30,7 +30,7 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.css", "src/app/styles/variables.css"]
+            "styles": ["src/styles.css", "src/app/styles/variables.css", "src/app/styles/themes.css"]
           },
           "configurations": {
             "production": {

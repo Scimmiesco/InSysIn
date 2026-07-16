@@ -1,0 +1,27 @@
+html.dark {
+  --bg-body: #000308;
+  --bg-card: #02070f;
+  --bg-surface: #0c1016;
+  --bg-elevated: #1c2128;
+  --border-default: #243137;
+  --border-card: #c8dcf6;
+  --text-primary: #f0f6fc;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --accent: #3860bc;
+  --accent-muted: #4653b3;
+}
+
+html.light {
+  --bg-body: #ffffff;
+  --bg-card: #f6f8fa;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f0f2f5;
+  --border-default: #d0d7de;
+  --border-card: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8c959f;
+  --accent: #3860bc;
+  --accent-muted: #4653b3;
+}
