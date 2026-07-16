@@ -1,105 +1,76 @@
-<!-- MEMORY -->
-<section class="block mem">
-  <h3>Memory</h3>
-  <div class="mem-cols">
-    <div>
-      <span class="label">RAM</span>
-      <span class="val"
-        >{{ ((store.sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824) |
-        number:'1.1-1' }} / {{ ((store.sys_info()?.mem_info?.total_memory ?? 0) /
-        1_073_741_824) | number:'1.1-1' }} GB</span
-      >
+<section class="dashboard">
+  @if (store.sys_info(); as info) {
+    <div class="sys-header">
+      <div class="header-top">
+        <span class="hostname">{{ info.system_info.hostname }}</span>
+        <span class="live-badge">
+          <span class="live-dot"></span>
+          Live
+        </span>
+      </div>
+      <div class="header-details">
+        <span><span class="detail-label">OS</span> {{ info.system_info.os_name }} {{ info.system_info.os_version }}</span>
+        <span class="detail-sep"></span>
+        <span><span class="detail-label">Kernel</span> {{ info.system_info.kernel_version }}</span>
+        <span class="detail-sep"></span>
+        <span><span class="detail-label">Uptime</span> {{ uptime }}</span>
+      </div>
+      <div class="header-details">
+        <span><span class="detail-label">CPU</span> {{ info.system_info.cpu_brand }}</span>
+        <span class="detail-sep"></span>
+        <span><span class="detail-label">Cores</span> {{ info.system_info.cpu_cores }}</span>
+        <span class="detail-sep"></span>
+        <span><span class="detail-label">Processes</span> {{ info.system_info.total_processes }}</span>
+      </div>
     </div>
-    <div>
-      <span class="label">Swap</span>
-      <span class="val"
-        >{{ ((store.sys_info()?.mem_info?.used_swap ?? 0) / 1_073_741_824) |
-        number:'1.1-1' }} / {{ ((store.sys_info()?.mem_info?.total_swap ?? 0) /
-        1_073_741_824) | number:'1.1-1' }} GB</span
-      >
+  }
+
+  <hr class="divider" />
+
+  <div class="gauge-row">
+    <app-gauge-card
+      label="CPU"
+      [percent]="store.sys_info()?.cpu_usage ?? 0"
+      color="#6366f1"
+    />
+    <app-gauge-card
+      label="Memory"
+      [percent]="ramPct"
+      [subtitle]="((store.sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' / ' + ((store.sys_info()?.mem_info?.total_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' GB'"
+      color="#6366f1"
+    />
+    <app-gauge-card
+      label="Disk"
+      [percent]="0"
+      [rateTop]="diskReadRate"
+      [rateBottom]="diskWriteRate"
+      color="#6366f1"
+    />
+    <app-gauge-card
+      label="Network"
+      [percent]="0"
+      [rateTop]="netDownRate"
+      [rateBottom]="netUpRate"
+      color="#6366f1"
+    />
+  </div>
+
+  <hr class="divider" />
+
+  <div class="proc-section">
+    <div class="proc-header">
+      <span class="proc-title">Top Processes</span>
+      <span class="proc-legend">CPU</span>
+      <span class="proc-legend">Memory</span>
     </div>
-  </div>
-</section>
-
-<!-- CPU -->
-<section class="block cpu">
-  <h3>CPU</h3>
-  <div class="cpu-bar-container">
-    <div class="cpu-bar" [style.width.%]="store.sys_info()?.cpu_usage ?? 0"></div>
-    <span class="cpu-label">{{ (store.sys_info()?.cpu_usage ?? 0) | number:'1.1-1' }}%</span>
-  </div>
-</section>
-
-<!-- MEMORY HISTORY -->
-<section class="block sys-hist">
-  <h3>Memory Usage (last 3 min)</h3>
-  <app-memory-chart [readings]="store.memReadings()" />
-</section>
-
-<!-- PROCESSES -->
-<section class="block proc">
-  <h3>Processes (top 15 by memory)</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th class="num">CPU</th>
-        <th class="num">Memory</th>
-      </tr>
-    </thead>
-    <tbody>
+    <div class="proc-list">
       @for(p of store.sys_info()?.processes; track p.pid) {
-      <tr>
-        <td>{{ p.name }}</td>
-        <td class="num">{{ p.cpu_usage | number:'1.1-1' }}%</td>
-        <td class="num">
-          {{ (p.memory_usage / 1_048_576) | number:'1.1-1' }} MB
-        </td>
-      </tr>
+      <div class="proc-row">
+        <span class="proc-name">{{ p.name }}</span>
+        <span class="proc-val">{{ p.cpu_usage | number:'1.1-1' }}%</span>
+        <span class="proc-val">{{ (p.memory_usage / 1_048_576) | number:'1.1-1' }} MB</span>
+      </div>
       }
-    </tbody>
-  </table>
-</section>
-
-<!-- HISTORY TABLE -->
-<section class="block hist">
-  <h3>Aggregated Process History</h3>
-  <table>
-    <thead>
-      <tr>
-        <th (click)="store.filtrarPor('nome')" style="cursor: pointer">
-          Name @if (store.ordenacaoAtual().coluna === 'nome') {
-          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
-          }
-        </th>
-        <th class="num" (click)="store.filtrarPor('cpu')" style="cursor: pointer">
-          CPU Total @if (store.ordenacaoAtual().coluna === 'cpu') {
-          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
-          }
-        </th>
-        <th class="num" (click)="store.filtrarPor('memoria')" style="cursor: pointer">
-          Memory Total @if (store.ordenacaoAtual().coluna === 'memoria') {
-          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
-          }
-        </th>
-        <th class="num" (click)="store.filtrarPor('data')" style="cursor: pointer">
-          Last Seen @if (store.ordenacaoAtual().coluna === 'data') {
-          <span>{{ store.ordenacaoAtual().desc ? '▼' : '▲' }}</span>
-          }
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      @for(h of store.processos_agrupados(); track h.nome) {
-      <tr>
-        <td>{{ h.nome }}</td>
-        <td class="num">{{ h.total_cpu | number:'1.1-1' }}%</td>
-        <td class="num">
-          {{ (h.total_memoria / 1_048_576) | number:'1.1-1' }} MB
-        </td>
-        <td class="num">{{ h.ultima_data | date:'HH:mm:ss' }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
+    </div>
+  </div>
 </section>

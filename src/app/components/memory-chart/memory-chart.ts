@@ -16,7 +16,8 @@ export class MemoryChart {
   constructor(private chart: ChartService) {}
 
   protected viewBox = computed(() => this.chart.calcularViewBox(this.readings));
-  protected linePoints = computed(() => this.chart.calcularLinePoints(this.readings));
+  protected ramPoints = computed(() => this.chart.calcularRamPoints(this.readings));
+  protected cpuPoints = computed(() => this.chart.calcularCpuPoints(this.readings));
   protected stddevPath = computed(() => this.chart.calcularStddevPath(this.readings));
   protected labels = computed(() => this.chart.calcularLabels(this.readings));
 }

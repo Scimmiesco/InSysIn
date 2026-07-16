@@ -8,14 +8,20 @@ export class ChartService {
     return `0 0 ${n} 100`;
   }
 
-  calcularLinePoints(readings: MemReading[]): string {
+  calcularRamPoints(readings: MemReading[]): string {
     return readings
-      .map((r, i) => `${i},${100 - r.pct * 100}`)
+      .map((r, i) => `${i},${100 - r.ramPct * 100}`)
+      .join(' ');
+  }
+
+  calcularCpuPoints(readings: MemReading[]): string {
+    return readings
+      .map((r, i) => `${i},${100 - r.cpuPct}`)
       .join(' ');
   }
 
   calcularStddevPath(readings: MemReading[]): string {
-    const vals = readings.map((r) => r.pct);
+    const vals = readings.map((r) => r.ramPct);
     const n = vals.length;
     if (n < 3) return '';
     const mean = vals.reduce((a, b) => a + b, 0) / n;

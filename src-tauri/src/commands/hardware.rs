@@ -8,7 +8,9 @@ const SAVE_INTERVAL_SECS: u64 = 180;
 #[tauri::command]
 pub fn ler_hardware(state: State<'_, AppState>) -> crate::models::hardware::SysStats {
     let mut sys = state.sys.lock().expect("sys mutex poisoned");
-    let stats = hardware_service::coletar_dados(&mut sys);
+    let mut disks = state.disks.lock().expect("disks mutex poisoned");
+    let mut networks = state.networks.lock().expect("networks mutex poisoned");
+    let stats = hardware_service::coletar_dados(&mut sys, &mut disks, &mut networks);
 
     let mut last_save = state.last_db_save.lock().expect("last_db_save mutex poisoned");
 

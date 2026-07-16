@@ -1,0 +1,45 @@
+<div class="card">
+  <div class="card-body">
+    @if (!rateTop && !rateBottom) {
+      <div class="ring-wrapper">
+        <svg viewBox="0 0 100 100" class="ring">
+          <circle cx="50" cy="50" r="42" fill="none" class="track" stroke-width="8" />
+          <circle
+            cx="50" cy="50" r="42" fill="none"
+            [attr.stroke]="color" stroke-width="8"
+            stroke-linecap="round"
+            [attr.stroke-dasharray]="circumference"
+            [attr.stroke-dashoffset]="dashOffset"
+            transform="rotate(-90 50 50)"
+            class="arc"
+          />
+        </svg>
+        <div class="card-pct">{{ percent | number:'1.1-1' }}%</div>
+      </div>
+    }
+
+    @if (rateTop || rateBottom) {
+      <div class="rate-wrapper">
+        @if (rateTop) {
+          <div class="rate-line">
+            <span class="rate-arrow">&#8595;</span>
+            <span class="rate-val">{{ rateTop }}</span>
+          </div>
+        }
+        @if (rateBottom) {
+          <div class="rate-line">
+            <span class="rate-arrow">&#8593;</span>
+            <span class="rate-val">{{ rateBottom }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="card-footer">
+    <span class="card-label">{{ label }}</span>
+    @if (subtitle) {
+      <span class="card-sub">{{ subtitle }}</span>
+    }
+  </div>
+</div>

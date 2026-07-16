@@ -7,18 +7,22 @@ pub mod state;
 use state::AppState;
 use std::sync::Mutex;
 use std::time::Instant;
-use sysinfo::System;
+use sysinfo::{Disks, Networks, System};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut sys = System::new();
     sys.refresh_cpu_usage();
     sys.refresh_memory();
+    let disks = Disks::new_with_refreshed_list();
+    let networks = Networks::new_with_refreshed_list();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(AppState {
             sys: Mutex::new(sys),
+            disks: Mutex::new(disks),
+            networks: Mutex::new(networks),
             last_db_save: Mutex::new(Instant::now()),
         })
         .invoke_handler(tauri::generate_handler![

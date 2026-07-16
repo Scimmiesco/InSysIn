@@ -1,14 +1,16 @@
-use crate::models::hardware::{MemInfo, ProcessInfo, SysStats};
+use crate::models::hardware::{DiskUsage, MemInfo, NetworkUsage, ProcessInfo, SystemInfo, SysStats};
+use crate::services::memory_service;
 use std::collections::HashMap;
-use sysinfo::ProcessesToUpdate;
-use sysinfo::System;
+use sysinfo::{Disks, Networks, ProcessesToUpdate, System};
 
 const PROCESS_LIMIT: usize = 15;
 
-pub fn coletar_dados(sys: &mut System) -> SysStats {
+pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Networks) -> SysStats {
     sys.refresh_cpu_usage();
     sys.refresh_memory();
     sys.refresh_processes(ProcessesToUpdate::All, true);
+    disks.refresh(true);
+    networks.refresh(true);
 
     let cpu_count = sys.cpus().len() as f32;
     let mut grouped: HashMap<String, ProcessInfo> = HashMap::new();
@@ -47,7 +49,48 @@ pub fn coletar_dados(sys: &mut System) -> SysStats {
             .unwrap_or(std::cmp::Ordering::Equal)
     });
 
+    let disk_usage = {
+        let mut read = 0u64;
+        let mut write = 0u64;
+        for disk in disks.list() {
+            read += disk.usage().read_bytes;
+            write += disk.usage().written_bytes;
+        }
+        DiskUsage {
+            read_bytes: read,
+            write_bytes: write,
+        }
+    };
+
+    let network_usage = {
+        let mut received = 0u64;
+        let mut transmitted = 0u64;
+        for (_, data) in &*networks {
+            received += data.received();
+            transmitted += data.transmitted();
+        }
+        NetworkUsage {
+            received_bytes: received,
+            transmitted_bytes: transmitted,
+        }
+    };
+
+    let breakdown = memory_service::coletar_breakdown();
+
+    let cpu_brand = sys.cpus().first().map(|c| c.brand().to_string()).unwrap_or_default();
+    let cpu_cores = sys.cpus().len() as u32;
+
     SysStats {
+        system_info: SystemInfo {
+            hostname: System::host_name().unwrap_or_default(),
+            os_name: System::name().unwrap_or_default(),
+            os_version: System::os_version().unwrap_or_default(),
+            kernel_version: System::kernel_version().unwrap_or_default(),
+            uptime_secs: System::uptime(),
+            cpu_brand,
+            cpu_cores,
+            total_processes: sys.processes().len(),
+        },
         mem_info: MemInfo {
             total_memory: sys.total_memory(),
             free_memory: sys.free_memory(),
@@ -56,8 +99,11 @@ pub fn coletar_dados(sys: &mut System) -> SysStats {
             used_swap: sys.used_swap(),
             total_swap: sys.total_swap(),
             free_swap: sys.free_swap(),
+            breakdown,
         },
         cpu_usage: sys.global_cpu_usage(),
         processes,
+        disk_usage,
+        network_usage,
     }
 }

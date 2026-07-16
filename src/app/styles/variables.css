@@ -1,0 +1,37 @@
+:root {
+  --r-card: 6px;
+  --r-card-sm: 4px;
+  --r-bar: 2px;
+  --r-dot: 50%;
+
+  --sp-host: 16px;
+  --sp-gap-host: 12px;
+  --sp-dashboard: 16px;
+  --sp-gap-dashboard: 12px;
+  --sp-gap-grid: 8px;
+  --sp-card: 12px;
+  --sp-section: 8px 12px;
+  --sp-proc-row: 4px 8px;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-base: 13px;
+  --fs-lg: clamp(18px, 2.5vw, 24px);
+  --fs-rate: 16px;
+
+  --bg-body: #000308;
+  --bg-card: #02070f;
+  --bg-surface: #0c1016;
+  --bg-elevated: #1c2128;
+  --border-default: #243137;
+  --border-card: #c8dcf6;
+  --text-primary: #f0f6fc;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --accent: #3860bc;
+  --accent-muted: #4653b3;
+  --alpha-grid: rgba(48, 54, 61, 0.3);
+
+  --t-ring: stroke-dashoffset 0.6s ease;
+  --t-hover: background 0.15s;
+}

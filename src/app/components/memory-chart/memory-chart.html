@@ -3,8 +3,11 @@
     @if (stddevPath()) {
       <path [attr.d]="stddevPath()" class="stddev-band" />
     }
-    @if (linePoints()) {
-      <polyline [attr.points]="linePoints()" class="mem-polyline" />
+    @if (ramPoints()) {
+      <polyline [attr.points]="ramPoints()" class="ram-polyline" />
+    }
+    @if (cpuPoints()) {
+      <polyline [attr.points]="cpuPoints()" class="cpu-polyline" />
     }
   </svg>
 </div>
@@ -14,6 +17,7 @@
   }
 </div>
 <div class="hist-legend">
-  <span class="legend-item"><span class="legend-line"></span> RAM</span>
+  <span class="legend-item"><span class="legend-line line-ram"></span> RAM</span>
+  <span class="legend-item"><span class="legend-line line-cpu"></span> CPU</span>
   <span class="legend-item"><span class="legend-band"></span> StdDev</span>
 </div>

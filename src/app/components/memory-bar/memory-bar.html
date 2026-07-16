@@ -1,0 +1,36 @@
+<div class="mem-section">
+  <div class="mem-header">
+    <span class="mem-title">Memory</span>
+    <span class="mem-total">{{ totalGB() | number:'1.1-1' }} GB total</span>
+  </div>
+
+  <div class="mem-stacked-bar">
+    @if (hasBreakdown()) {
+      <span class="seg seg-app" [style.width.%]="pct(appGB())" [title]="'App ' + (appGB() | number:'1.1-1') + ' GB'"></span>
+      <span class="seg seg-wired" [style.width.%]="pct(wiredGB())" [title]="'Wired ' + (wiredGB() | number:'1.1-1') + ' GB'"></span>
+      <span class="seg seg-compressed" [style.width.%]="pct(compressedGB())" [title]="'Compressed ' + (compressedGB() | number:'1.1-1') + ' GB'"></span>
+      <span class="seg seg-cached-detailed" [style.width.%]="pct(cachedGB())" [title]="'Cached ' + (cachedGB() | number:'1.1-1') + ' GB'"></span>
+      <span class="seg seg-free" [style.width.%]="pct(freeGB())" [title]="'Free ' + (freeGB() | number:'1.1-1') + ' GB'"></span>
+    } @else {
+      <span class="seg seg-used" [style.width.%]="pct(usedGB())"></span>
+      <span class="seg seg-cached" [style.width.%]="pct(cachedGB())"></span>
+      <span class="seg seg-free" [style.width.%]="pct(freeGB())"></span>
+    }
+  </div>
+
+  @if (hasBreakdown()) {
+    <div class="mem-breakdown">
+      <span class="brk-item"><span class="dot dot-app"></span> App {{ appGB() | number:'1.1-1' }}</span>
+      <span class="brk-item"><span class="dot dot-wired"></span> Wired {{ wiredGB() | number:'1.1-1' }}</span>
+      <span class="brk-item"><span class="dot dot-compressed"></span> Comp {{ compressedGB() | number:'1.1-1' }}</span>
+      <span class="brk-item"><span class="dot dot-cached-detailed"></span> Cached {{ cachedGB() | number:'1.1-1' }}</span>
+      <span class="brk-item"><span class="dot dot-free"></span> Free {{ freeGB() | number:'1.1-1' }}</span>
+    </div>
+  } @else {
+    <div class="mem-breakdown">
+      <span class="brk-item"><span class="dot dot-used"></span> Used {{ usedGB() | number:'1.1-1' }}</span>
+      <span class="brk-item"><span class="dot dot-cached"></span> Cached {{ cachedGB() | number:'1.1-1' }}</span>
+      <span class="brk-item"><span class="dot dot-free"></span> Free {{ freeGB() | number:'1.1-1' }}</span>
+    </div>
+  }
+</div>

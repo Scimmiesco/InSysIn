@@ -1,5 +1,6 @@
 export interface MemReading {
-  pct: number;
+  ramPct: number;
+  cpuPct: number;
   time: Date;
 }
 
