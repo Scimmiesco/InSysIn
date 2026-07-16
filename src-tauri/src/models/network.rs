@@ -18,6 +18,7 @@ pub struct NetConnection {
     pub local: String,
     pub remote: String,
     pub state: String,
+    pub hostname: Option<String>,
 }
 
 #[derive(Serialize)]

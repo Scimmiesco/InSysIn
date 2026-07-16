@@ -5,11 +5,30 @@ pub mod services;
 pub mod state;
 
 use state::AppState;
+use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Mutex;
 use std::time::Instant;
 use sysinfo::{Disks, Networks, System};
 use tauri::Emitter;
 use tauri::menu::{AboutMetadata, Menu, MenuItem, PredefinedMenuItem, Submenu, HELP_SUBMENU_ID, WINDOW_SUBMENU_ID};
+
+fn load_dns_cache(path: &PathBuf) -> HashMap<String, String> {
+    let mut cache: HashMap<String, String> =
+        serde_json::from_str(include_str!("../../assets/dns_seed.json")).unwrap_or_default();
+
+    if let Ok(data) = std::fs::read_to_string(path) {
+        if let Ok(saved) = serde_json::from_str::<HashMap<String, String>>(&data) {
+            cache.extend(saved);
+        }
+    }
+
+    if let Some(parent) = path.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+
+    cache
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -19,14 +38,25 @@ pub fn run() {
     let disks = Disks::new_with_refreshed_list();
     let networks = Networks::new_with_refreshed_list();
 
+    let dns_cache_path = {
+        let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        PathBuf::from(home).join(".cache").join("insysin").join("dns_cache.json")
+    };
+
+    let dns_cache = load_dns_cache(&dns_cache_path);
+
+    let app_state = AppState {
+        sys: Mutex::new(sys),
+        disks: Mutex::new(disks),
+        networks: Mutex::new(networks),
+        last_db_save: Mutex::new(Instant::now()),
+        dns_cache: Mutex::new(dns_cache),
+        dns_cache_path: dns_cache_path.clone(),
+    };
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .manage(AppState {
-            sys: Mutex::new(sys),
-            disks: Mutex::new(disks),
-            networks: Mutex::new(networks),
-            last_db_save: Mutex::new(Instant::now()),
-        })
+        .manage(app_state)
         .setup(|app| {
             let h = app.handle();
             let pkg_info = h.package_info();

@@ -4,6 +4,9 @@ use crate::models::network::{
 };
 use crate::state::AppState;
 use std::collections::HashMap;
+use std::net::IpAddr;
+use std::path::Path;
+use std::str::FromStr;
 use tauri::State;
 
 #[tauri::command]
@@ -53,7 +56,10 @@ pub fn ler_rede(state: State<'_, AppState>) -> Result<NetworkDashboard, String> 
     }
     drop(networks);
 
-    let connections = get_connections().unwrap_or_default();
+    let mut dns_cache = state.dns_cache.lock().map_err(|e| format!("dns_cache lock: {}", e))?;
+    let connections = get_connections(&mut dns_cache, &state.dns_cache_path)?;
+    drop(dns_cache);
+
     let stats = compute_stats(&connections);
     let top_processes = compute_top_processes(&connections);
     let listening_services = compute_listening_services(&connections);
@@ -71,6 +77,131 @@ pub fn ler_rede(state: State<'_, AppState>) -> Result<NetworkDashboard, String> 
         top_processes,
         listening_services,
     })
+}
+
+fn get_connections(
+    cache: &mut HashMap<String, String>,
+    cache_path: &Path,
+) -> Result<Vec<NetConnection>, String> {
+    let paths = ["/usr/sbin/lsof", "/usr/local/bin/lsof", "lsof"];
+
+    let mut output = None;
+    for path in &paths {
+        match std::process::Command::new(path)
+            .args(["-i", "-P", "-n", "-l"])
+            .output()
+        {
+            Ok(o) => {
+                if o.status.success() {
+                    output = Some(o);
+                    break;
+                }
+            }
+            Err(_) => {}
+        }
+    }
+
+    let output = match output {
+        Some(o) => o,
+        None => return Ok(Vec::new()),
+    };
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut connections = parse_lsof(&stdout);
+
+    let mut changed = false;
+    for conn in &mut connections {
+        if let Some(ip) = extract_remote_ip(&conn.remote) {
+            if !cache.contains_key(&ip) {
+                match IpAddr::from_str(&ip) {
+                    Ok(addr) => match dns_lookup::lookup_addr(&addr) {
+                        Ok(hostname) => {
+                            cache.insert(ip.clone(), hostname);
+                            changed = true;
+                        }
+                        Err(_) => {}
+                    },
+                    Err(_) => {}
+                }
+            }
+            conn.hostname = cache.get(&ip).cloned();
+        }
+    }
+
+    if changed {
+        if let Ok(json) = serde_json::to_string(cache) {
+            let _ = std::fs::write(cache_path, &json);
+        }
+    }
+
+    Ok(connections)
+}
+
+fn extract_remote_ip(remote: &str) -> Option<String> {
+    if remote.is_empty() || remote == "*" {
+        return None;
+    }
+    if remote.starts_with('[') {
+        let end = remote.find(']')?;
+        Some(remote[1..end].to_string())
+    } else {
+        let port_start = remote.rfind(':')?;
+        let addr = &remote[..port_start];
+        if addr.is_empty() || addr == "*" {
+            None
+        } else {
+            Some(addr.to_string())
+        }
+    }
+}
+
+fn parse_lsof(stdout: &str) -> Vec<NetConnection> {
+    let mut connections = Vec::new();
+
+    for line in stdout.lines().skip(1) {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 9 {
+            continue;
+        }
+
+        let pid: i32 = parts[1].parse().unwrap_or(0);
+        let process_name = parts[0].to_string();
+        let protocol = parts[7].to_string();
+        let name_str = parts[8..].join(" ");
+
+        let state;
+        let addr;
+        if let Some(paren_start) = name_str.rfind('(') {
+            if name_str.ends_with(')') {
+                state = name_str[paren_start + 1..name_str.len() - 1].to_string();
+                addr = name_str[..paren_start].trim().to_string();
+            } else {
+                state = String::new();
+                addr = name_str.clone();
+            }
+        } else {
+            state = String::new();
+            addr = name_str.clone();
+        }
+
+        let (local, remote) = if let Some(arrow) = addr.find("->") {
+            (addr[..arrow].to_string(), addr[arrow + 2..].to_string())
+        } else {
+            (addr, String::new())
+        };
+
+        connections.push(NetConnection {
+            pid,
+            process_name,
+            protocol,
+            local,
+            remote,
+            state,
+            hostname: None,
+        });
+    }
+
+    connections
 }
 
 fn compute_stats(connections: &[NetConnection]) -> ConnectionStats {
@@ -163,63 +294,4 @@ fn port_desc(addr: &str) -> String {
         123 => "NTP".to_string(),
         _ => format!(":{}", port),
     }
-}
-
-fn get_connections() -> Result<Vec<NetConnection>, String> {
-    let output = std::process::Command::new("lsof")
-        .args(["-i", "-P", "-n"])
-        .output()
-        .map_err(|e| format!("failed to run lsof: {}", e))?;
-
-    if !output.status.success() {
-        return Ok(Vec::new());
-    }
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let mut connections = Vec::new();
-
-    for line in stdout.lines().skip(1) {
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() < 9 {
-            continue;
-        }
-
-        let pid: i32 = parts[1].parse().unwrap_or(0);
-        let process_name = parts[0].to_string();
-        let protocol = parts[7].to_string();
-
-        let name_str = parts[8..].join(" ");
-
-        let state;
-        let addr;
-        if let Some(paren_start) = name_str.rfind('(') {
-            if name_str.ends_with(')') {
-                state = name_str[paren_start + 1..name_str.len() - 1].to_string();
-                addr = name_str[..paren_start].trim().to_string();
-            } else {
-                state = String::new();
-                addr = name_str.clone();
-            }
-        } else {
-            state = String::new();
-            addr = name_str.clone();
-        }
-
-        let (local, remote) = if let Some(arrow) = addr.find("->") {
-            (addr[..arrow].to_string(), addr[arrow + 2..].to_string())
-        } else {
-            (addr, String::new())
-        };
-
-        connections.push(NetConnection {
-            pid,
-            process_name,
-            protocol,
-            local,
-            remote,
-            state,
-        });
-    }
-
-    Ok(connections)
 }

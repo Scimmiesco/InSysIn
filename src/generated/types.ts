@@ -92,6 +92,7 @@ export interface NetworkInterface {
 }
 
 export interface NetConnection {
+  hostname?: string;
   pid: number;
   process_name: string;
   protocol: string;
