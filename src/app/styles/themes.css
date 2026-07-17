@@ -10,6 +10,13 @@ html.dark {
   --text-muted: #8b949e;
   --accent: #3860bc;
   --accent-muted: #4653b3;
+  --color-success: #3fb950;
+  --color-info: #58a6ff;
+  --color-warning: #d29922;
+  --color-muted-state: #8b949e;
+  --color-danger: #ef4444;
+  --color-online: #22c55e;
+  --color-scrollbar-hover: #484f58;
 }
 
 html.light {
@@ -24,4 +31,11 @@ html.light {
   --text-muted: #8c959f;
   --accent: #3860bc;
   --accent-muted: #4653b3;
+  --color-success: #1a7f37;
+  --color-info: #0969da;
+  --color-warning: #9a6700;
+  --color-muted-state: #656d76;
+  --color-danger: #cf222e;
+  --color-online: #1a7f37;
+  --color-scrollbar-hover: #656d76;
 }
