@@ -1,0 +1,197 @@
+<main class="page-host">
+  <section class="dashboard-card">
+    <div class="header-bar">
+      <span class="header-title">Internet</span>
+      <div class="header-actions">
+        @if (store.scanning()) {
+          <span class="scanning-badge">Checking...</span>
+        }
+        <ui-button
+          (clicked)="store.refreshAll()"
+          [disabled]="store.scanning()"
+          data-tip="Re-check your connection details by pinging internet services."
+        >{{ store.scanning() ? 'Checking...' : 'Refresh' }}</ui-button>
+      </div>
+    </div>
+
+    @if (store.error()) {
+      <div class="error-banner">{{ store.error() }}</div>
+    }
+
+    <ui-section title="Your Connection">
+      <span header-actions class="status-inline">
+        @if (store.diagnostics()?.info?.online) {
+          <span class="status-dot connected" data-tip="You're connected to the internet."></span>
+          <span class="online-label">Online</span>
+        } @else if (store.diagnostics() && !store.scanning()) {
+          <span class="status-dot disconnected" data-tip="No internet connection detected. Check your WiFi or cable."></span>
+          <span class="offline-label">Offline</span>
+        }
+      </span>
+      <div class="info-grid">
+        @if (store.scanning() && !store.diagnostics()) {
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="info-item info-skel">
+              <div class="skel-line w-60"></div>
+              <div class="skel-line w-90"></div>
+            </div>
+          }
+        } @else {
+          <ui-info-item
+            key="Your IP Address"
+            [value]="store.diagnostics()?.info?.public_ip || '—'"
+            [mono]="true"
+            tooltip="Your unique address on the internet. This is what websites see when you connect." />
+          <ui-info-item
+            key="ISP"
+            [value]="store.diagnostics()?.info?.isp || '—'"
+            tooltip="Internet Service Provider — the company you pay for your internet access." />
+          <ui-info-item
+            key="Location"
+            [value]="store.diagnostics()?.info?.city ? store.diagnostics()!.info.city + ', ' + store.diagnostics()!.info.country : '—'"
+            tooltip="Approximate city and country based on your IP. Not your exact location — usually accurate within a few miles." />
+          <ui-info-item
+            key="Timezone"
+            [value]="store.diagnostics()?.info?.timezone || '—'"
+            tooltip="Time zone linked to your internet connection." />
+          <ui-info-item
+            key="Network ID"
+            [value]="store.diagnostics()?.info?.asn || '—'"
+            [mono]="true"
+            tooltip="Your ISP's unique network number on the global internet. Used to route traffic efficiently." />
+          <ui-info-item
+            key="Ping"
+            [value]="store.diagnostics()?.info?.latency_ms ? store.diagnostics()!.info.latency_ms + ' ms' : '—'"
+            [subtitle]="store.diagnostics()?.info?.ping_target ? 'to ' + store.diagnostics()!.info.ping_target : null"
+            [tooltip]="'Round-trip time to ' + (store.diagnostics()?.info?.ping_target || 'the nearest server') + '. Lower = faster response for browsing, gaming, and video calls.'" />
+        }
+      </div>
+    </ui-section>
+
+    <ui-section title="Internet Speed">
+      <ui-button
+        header-actions
+        (clicked)="store.runSpeedTest()"
+        [disabled]="store.runningTest()"
+        data-tip="Downloads and uploads real data to measure your internet speed. Takes about 5—10 seconds."
+      >{{ store.runningTest() ? 'Running...' : 'Start Test' }}</ui-button>
+
+      @if (store.speedError()) {
+        <div class="error-banner">{{ store.speedError() }}</div>
+      }
+
+      <div class="speed-grid">
+        <div class="speed-card" data-tip="How fast you receive data. Matters for streaming, browsing, and file downloads.">
+          <div class="speed-icon down">↓</div>
+          <div class="speed-label">Download</div>
+          <div class="speed-value">
+            @if (store.diagnostics()?.speed) {
+              {{ store.diagnostics()!.speed!.download_mbps }} Mbps
+            } @else if (store.runningTest()) {
+              <span class="testing-label">Testing...</span>
+            } @else {
+              <span class="idle-label">—</span>
+            }
+          </div>
+        </div>
+        <div class="speed-card" data-tip="How fast you send data. Matters for video calls, cloud backups, and file uploads.">
+          <div class="speed-icon up">↑</div>
+          <div class="speed-label">Upload</div>
+          <div class="speed-value">
+            @if (store.diagnostics()?.speed) {
+              {{ store.diagnostics()!.speed!.upload_mbps }} Mbps
+            } @else if (store.runningTest()) {
+              <span class="testing-label">Testing...</span>
+            } @else {
+              <span class="idle-label">—</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (store.runningTest()) {
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      }
+    </ui-section>
+
+    <ui-section title="Local Network">
+      <ui-button
+        header-actions
+        (clicked)="store.scanLocal()"
+        [disabled]="store.scanningLocal()"
+        data-tip="Re-scan your local network for connected devices."
+      >{{ store.scanningLocal() ? 'Scanning...' : 'Refresh' }}</ui-button>
+      <div class="info-grid">
+        @if (store.scanningLocal() && !store.localNetwork()) {
+          @for (i of [1,2,3,4]; track i) {
+            <div class="info-item info-skel">
+              <div class="skel-line w-60"></div>
+              <div class="skel-line w-90"></div>
+            </div>
+          }
+        } @else {
+          <ui-info-item
+            key="Local IP"
+            [value]="store.localNetwork()?.local_ip || '—'"
+            [mono]="true"
+            tooltip="Your computer's private address on this local network. Not visible outside your home." />
+          <ui-info-item
+            key="Gateway"
+            [value]="store.localNetwork()?.gateway || '—'"
+            [mono]="true"
+            tooltip="The router that connects your local network to the internet. Usually 192.168.0.1 or 192.168.1.1." />
+          <ui-info-item
+            key="Subnet Mask"
+            [value]="store.localNetwork()?.subnet_mask || '—'"
+            [mono]="true"
+            tooltip="Defines the range of devices allowed on your network. 255.255.255.0 = up to 254 devices." />
+          <ui-info-item
+            key="DNS"
+            [value]="store.localNetwork()?.dns_servers?.join(', ') || '—'"
+            [mono]="true"
+            tooltip="Servers that translate domain names (like google.com) into IP addresses your computer can reach." />
+        }
+      </div>
+    </ui-section>
+
+    <ui-section title="Connected Devices">
+      <span header-actions class="header-actions">
+        <div class="range-badge" data-tip="Your local network address range.">{{ store.localNetwork()?.network_range || '—' }}</div>
+        @if (store.localNetwork()?.devices?.length) {
+          <span class="alive-count">{{ store.localNetwork()!.devices.length }} alive</span>
+        }
+        <ui-button
+          (clicked)="store.scanLocal()"
+          [disabled]="store.scanningLocal()"
+          data-tip="Re-scan your local network for connected devices."
+        >{{ store.scanningLocal() ? 'Scanning...' : 'Scan' }}</ui-button>
+      </span>
+      @if (store.localNetwork()?.devices?.length) {
+        <div class="angry-table">
+          <div class="angry-header">
+            <span class="col-num">#</span>
+            <span class="col-angry-ip">IP</span>
+            <span class="col-dot"></span>
+            <span class="col-angry-mac">MAC</span>
+            <span class="col-angry-vendor">Vendor</span>
+          </div>
+          @for (dev of store.localNetwork()!.devices; track dev.ip; let idx = $index) {
+            <div class="angry-row" [class.is-gateway]="dev.ip === store.localNetwork()!.gateway">
+              <span class="col-num">{{ dev.ip === store.localNetwork()!.gateway ? 'G' : idx + 1 }}</span>
+              <span class="col-angry-ip mono">{{ dev.ip }}</span>
+              <span class="col-dot">
+                <span class="live-dot-angry" data-tip="Device is active on the network."></span>
+              </span>
+              <span class="col-angry-mac mono">{{ dev.mac || '—' }}</span>
+              <span class="col-angry-vendor">{{ dev.vendor || '—' }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">No devices found. Click Scan to search your network.</div>
+      }
+    </ui-section>
+  </section>
+</main>
