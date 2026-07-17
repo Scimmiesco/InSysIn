@@ -1,0 +1,129 @@
+<section class="dashboard">
+  <div class="header-bar">
+    <span class="header-title">Internet</span>
+    <div class="header-actions">
+      @if (store.scanning()) {
+        <span class="scanning-badge">Checking...</span>
+      }
+      <button
+        class="scan-btn"
+        (click)="store.fetchInfo()"
+        [disabled]="store.scanning()"
+        data-tip="Re-check your connection details by pinging internet services."
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  @if (store.error()) {
+    <div class="error-banner">{{ store.error() }}</div>
+  }
+
+  <div class="group-box">
+    <div class="group-title">
+      Your Connection
+      @if (store.diagnostics()?.info?.online) {
+        <span class="status-dot connected" data-tip="You're connected to the internet."></span>
+        <span class="online-label">Online</span>
+      } @else if (store.diagnostics() && !store.scanning()) {
+        <span class="status-dot disconnected" data-tip="No internet connection detected. Check your WiFi or cable."></span>
+        <span class="offline-label">Offline</span>
+      }
+    </div>
+    <div class="info-grid">
+      <div class="info-item" data-tip="Your unique address on the internet. This is what websites see when you connect.">
+        <span class="info-key">Your IP Address</span>
+        <span class="info-value mono">{{ store.diagnostics()?.info?.public_ip || '—' }}</span>
+      </div>
+      <div class="info-item" data-tip="Internet Service Provider — the company you pay for your internet access.">
+        <span class="info-key">ISP</span>
+        <span class="info-value">{{ store.diagnostics()?.info?.isp || '—' }}</span>
+      </div>
+      <div class="info-item" data-tip="Approximate city and country based on your IP. Not your exact location — usually accurate within a few miles.">
+        <span class="info-key">Location</span>
+        <span class="info-value">
+          @if (store.diagnostics()?.info?.city) {
+            {{ store.diagnostics()!.info.city }}, {{ store.diagnostics()!.info.country }}
+          } @else {
+            —
+          }
+        </span>
+      </div>
+      <div class="info-item" data-tip="Time zone linked to your internet connection.">
+        <span class="info-key">Timezone</span>
+        <span class="info-value">{{ store.diagnostics()?.info?.timezone || '—' }}</span>
+      </div>
+      <div class="info-item" data-tip="Your ISP's unique network number on the global internet. Used to route traffic efficiently.">
+        <span class="info-key">Network ID</span>
+        <span class="info-value mono">{{ store.diagnostics()?.info?.asn || '—' }}</span>
+      </div>
+      <div class="info-item" [attr.data-tip]="'Round-trip time to ' + (store.diagnostics()?.info?.ping_target || 'the nearest server') + '. Lower = faster response for browsing, gaming, and video calls.'">
+        <span class="info-key">Ping</span>
+        <span class="info-value">
+          @if (store.diagnostics()?.info?.latency_ms) {
+            {{ store.diagnostics()!.info.latency_ms }} ms
+          } @else {
+            —
+          }
+        </span>
+        @if (store.diagnostics()?.info?.ping_target) {
+          <span class="info-subtitle">to {{ store.diagnostics()!.info.ping_target }}</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="group-box">
+    <div class="group-title">
+      Internet Speed
+      <button
+        class="test-btn"
+        (click)="store.runSpeedTest()"
+        [disabled]="store.runningTest()"
+        data-tip="Downloads and uploads real data to measure your internet speed. Takes about 5—10 seconds."
+      >
+        {{ store.runningTest() ? 'Running...' : 'Start Test' }}
+      </button>
+    </div>
+
+    @if (store.speedError()) {
+      <div class="error-banner">{{ store.speedError() }}</div>
+    }
+
+    <div class="speed-grid">
+      <div class="speed-card" data-tip="How fast you receive data. Matters for streaming, browsing, and file downloads.">
+        <div class="speed-icon down">↓</div>
+        <div class="speed-label">Download</div>
+        <div class="speed-value">
+          @if (store.diagnostics()?.speed) {
+            {{ store.diagnostics()!.speed!.download_mbps }} Mbps
+          } @else if (store.runningTest()) {
+            <span class="testing-label">Testing...</span>
+          } @else {
+            <span class="idle-label">—</span>
+          }
+        </div>
+      </div>
+      <div class="speed-card" data-tip="How fast you send data. Matters for video calls, cloud backups, and file uploads.">
+        <div class="speed-icon up">↑</div>
+        <div class="speed-label">Upload</div>
+        <div class="speed-value">
+          @if (store.diagnostics()?.speed) {
+            {{ store.diagnostics()!.speed!.upload_mbps }} Mbps
+          } @else if (store.runningTest()) {
+            <span class="testing-label">Testing...</span>
+          } @else {
+            <span class="idle-label">—</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (store.runningTest()) {
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    }
+  </div>
+</section>

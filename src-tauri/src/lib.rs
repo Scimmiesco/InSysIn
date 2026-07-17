@@ -76,6 +76,7 @@ pub fn run() {
             let theme_sub = Submenu::with_items(h, "Theme", true, &[&dark, &light])?;
 
             let network_item = MenuItem::with_id(h, "navigate_network", "Network Dashboard", true, None::<&str>)?;
+            let wifi_item = MenuItem::with_id(h, "navigate_internet", "Internet Dashboard", true, None::<&str>)?;
 
             #[cfg(target_os = "macos")]
             let view_menu = Submenu::with_items(h, "View", true, &[
@@ -84,6 +85,7 @@ pub fn run() {
                 &theme_sub,
                 &sep()?,
                 &network_item,
+                &wifi_item,
             ])?;
 
             #[cfg(not(target_os = "macos"))]
@@ -93,6 +95,7 @@ pub fn run() {
                 &PredefinedMenuItem::fullscreen(h, None)?,
                 &sep()?,
                 &network_item,
+                &wifi_item,
             ])?;
 
             let window_menu = Submenu::with_id_and_items(
@@ -159,6 +162,7 @@ pub fn run() {
                 "theme_dark" => { let _ = app.emit("theme-changed", "dark"); }
                 "theme_light" => { let _ = app.emit("theme-changed", "light"); }
                 "navigate_network" => { let _ = app.emit("navigate", "/network"); }
+                "navigate_internet" => { let _ = app.emit("navigate", "/wifi"); }
                 _ => {}
             }
         })
@@ -167,6 +171,8 @@ pub fn run() {
             commands::historico::obter_historico,
             commands::historico::obter_processos_agrupados,
             commands::network::ler_rede,
+            commands::wifi::get_internet_info,
+            commands::wifi::run_speed_test,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
