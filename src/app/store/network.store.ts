@@ -17,6 +17,7 @@ export interface ProxyEntry {
 
 @Injectable({ providedIn: 'root' })
 export class NetworkStore implements OnDestroy {
+  loading = signal(false);
   dashboard = signal<NetworkDashboard | null>(null);
   error = signal<string | null>(null);
 
@@ -58,6 +59,7 @@ export class NetworkStore implements OnDestroy {
 
   async lerDados(): Promise<void> {
     try {
+      this.loading.set(true);
       const res = await this.network.carregar();
       this.dashboard.set(res);
       this.error.set(null);
@@ -89,6 +91,8 @@ export class NetworkStore implements OnDestroy {
     } catch (erro) {
       this.error.set('Erro ao ler dados de rede');
       console.error('Erro ao ler rede:', erro);
+    } finally {
+      this.loading.set(false);
     }
   }
 

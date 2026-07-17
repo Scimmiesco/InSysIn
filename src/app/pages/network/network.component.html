@@ -1,0 +1,276 @@
+<main class="page-host">
+  <section class="dashboard-card">
+    <div class="header-bar">
+      <span class="header-title">Network Dashboard</span>
+      @if (store.dashboard()) {
+        <ui-live-badge />
+      }
+    </div>
+
+    <div class="tab-bar">
+      <ui-button variant="tab" [active]="store.activeTab() === 'dashboard'" (clicked)="store.switchTab('dashboard')">Dashboard</ui-button>
+      <ui-button variant="tab" [active]="store.activeTab() === 'proxy'" (clicked)="store.switchTab('proxy')">Proxy Log</ui-button>
+    </div>
+
+    @if (store.activeTab() === 'dashboard') {
+      @if (store.loading() && !store.dashboard()) {
+        <ui-section title="Traffic">
+          <div class="group-label">Physical</div>
+          <div class="iface-grid">
+            <div class="iface-card skeleton">
+              <div class="skel-line w-70"></div>
+              <div class="skel-line w-90"></div>
+              <div class="iface-rates">
+                <div class="skel-line w-80"></div>
+                <div class="skel-line w-80"></div>
+              </div>
+            </div>
+            <div class="iface-card skeleton">
+              <div class="skel-line w-60"></div>
+              <div class="skel-line w-90"></div>
+              <div class="iface-rates">
+                <div class="skel-line w-80"></div>
+                <div class="skel-line w-80"></div>
+              </div>
+            </div>
+            <div class="iface-card skeleton">
+              <div class="skel-line w-80"></div>
+              <div class="skel-line w-90"></div>
+              <div class="iface-rates">
+                <div class="skel-line w-80"></div>
+                <div class="skel-line w-80"></div>
+              </div>
+            </div>
+          </div>
+        </ui-section>
+
+        <ui-section title="Connection Summary">
+          <div class="stats-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <div class="stat-card skeleton">
+                <div class="skel-block w-40"></div>
+                <div class="skel-line w-60"></div>
+              </div>
+            }
+          </div>
+        </ui-section>
+
+        <ui-section title="All Connections">
+          <div class="conn-header">
+            <span>Proto</span><span>Process</span><span>Local → Remote</span><span>State</span><span>PID</span>
+          </div>
+          <div class="conn-list">
+            @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              <div class="conn-row skeleton-row">
+                <div class="skel-line w-80"></div>
+                <div class="skel-line w-70"></div>
+                <div class="skel-line w-90"></div>
+                <div class="skel-line w-60"></div>
+                <div class="skel-line w-40"></div>
+              </div>
+            }
+          </div>
+        </ui-section>
+      } @else {
+        <ui-section title="Traffic">
+          <span class="group-sub">↓ {{ formatTotal(store.dashboard()?.traffic?.total_received ?? 0) }} total · ↑ {{ formatTotal(store.dashboard()?.traffic?.total_transmitted ?? 0) }} total</span>
+          @if (store.dashboard()?.traffic?.physical?.length) {
+            <div class="group-label">Physical</div>
+            <div class="iface-grid">
+              @for (iface of store.dashboard()?.traffic?.physical; track iface.name) {
+                <div class="iface-card">
+                  <div class="iface-name" [attr.data-tip]="interfaceTip(iface)">{{ iface.name }}</div>
+                  <div class="iface-ips">{{ iface.ip_addresses.join(', ') || '—' }}</div>
+                  <div class="iface-rates">
+                    <span class="rate-down" [attr.data-tip]="rateRxTip(iface)">↓ Rx {{ rateValue(iface, 'rx') }}</span>
+                    <span class="rate-up" [attr.data-tip]="rateTxTip(iface)">↑ Tx {{ rateValue(iface, 'tx') }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (store.dashboard()?.traffic?.virtual_ifaces?.length) {
+            <div class="group-label">Virtual</div>
+            <div class="iface-grid">
+              @for (iface of store.dashboard()?.traffic?.virtual_ifaces; track iface.name) {
+                <div class="iface-card">
+                  <div class="iface-name" [attr.data-tip]="interfaceTip(iface)">{{ iface.name }}</div>
+                  <div class="iface-ips">{{ iface.ip_addresses.join(', ') || '—' }}</div>
+                  <div class="iface-rates">
+                    <span class="rate-down" [attr.data-tip]="rateRxTip(iface)">↓ Rx {{ rateValue(iface, 'rx') }}</span>
+                    <span class="rate-up" [attr.data-tip]="rateTxTip(iface)">↑ Tx {{ rateValue(iface, 'tx') }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (store.dashboard()?.traffic?.special?.length) {
+            <div class="group-label">Special</div>
+            <div class="iface-grid">
+              @for (iface of store.dashboard()?.traffic?.special; track iface.name) {
+                <div class="iface-card">
+                  <div class="iface-name" [attr.data-tip]="interfaceTip(iface)">{{ iface.name }}</div>
+                  <div class="iface-ips">{{ iface.ip_addresses.join(', ') || '—' }}</div>
+                  <div class="iface-rates">
+                    <span class="rate-down" [attr.data-tip]="rateRxTip(iface)">↓ Rx {{ rateValue(iface, 'rx') }}</span>
+                    <span class="rate-up" [attr.data-tip]="rateTxTip(iface)">↑ Tx {{ rateValue(iface, 'tx') }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </ui-section>
+
+        <ui-section title="Connection Summary">
+          <div class="stats-grid">
+            <ui-stat-card [value]="store.dashboard()?.stats?.total ?? 0" label="Total" tooltip="Total active network connections" />
+            <ui-stat-card [value]="store.dashboard()?.stats?.tcp ?? 0" label="TCP" tooltip="Connections using TCP — reliable, ordered delivery" />
+            <ui-stat-card [value]="store.dashboard()?.stats?.udp ?? 0" label="UDP" tooltip="Connections using UDP — fast, no ordering guarantee" />
+            <ui-stat-card [value]="store.dashboard()?.stats?.established ?? 0" label="Active" variant="success" />
+            <ui-stat-card [value]="store.dashboard()?.stats?.listening ?? 0" label="Listening" variant="info" />
+            <ui-stat-card [value]="(store.dashboard()?.stats?.close_wait ?? 0) + (store.dashboard()?.stats?.time_wait ?? 0)" label="Closing" variant="warning" />
+          </div>
+        </ui-section>
+
+        @if (store.dashboard()?.listening_services?.length) {
+          <ui-section title="Listening Services">
+            <div class="mini-table">
+              <div class="mini-th">
+                <span>Service</span>
+                <span>Process</span>
+                <span>Address</span>
+              </div>
+              @for (svc of store.dashboard()?.listening_services; track svc.pid + svc.local) {
+                <div class="mini-tr" [title]="svcTip(svc)">
+                  <span class="svc-port">{{ svc.port_desc }}</span>
+                  <span class="svc-proc">{{ svc.process_name }}</span>
+                  <span class="svc-addr">{{ svc.local }}</span>
+                </div>
+              }
+            </div>
+          </ui-section>
+        }
+
+        @if (store.dashboard()?.top_processes?.length) {
+          <ui-section title="Top Network Processes">
+            <div class="mini-table">
+              <div class="mini-th">
+                <span>Process</span>
+                <span>Connections</span>
+                <span>Protocols</span>
+              </div>
+              @for (pc of store.dashboard()?.top_processes; track pc.process_name) {
+                <div class="mini-tr" [title]="procTip(pc)">
+                  <span class="svc-proc">{{ pc.process_name }}</span>
+                  <span class="svc-port">{{ pc.count }}</span>
+                  <span class="svc-proto">
+                    @for (tag of listPcs(pc); track tag) {
+                      <span class="proto-tag">{{ tag }}</span>
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+          </ui-section>
+        }
+
+        <ui-section title="All Connections">
+          <div class="conn-header">
+            <span>Proto</span>
+            <span>Process</span>
+            <span>Local → Remote</span>
+            <span>State</span>
+            <span>PID</span>
+          </div>
+          <div class="conn-list">
+            @for (conn of store.dashboard()?.connections; track conn.pid + conn.local + conn.remote) {
+              <div class="conn-row" [title]="connTip(conn)">
+                <span class="col-proto">{{ conn.protocol }}</span>
+                <span class="col-proc">{{ conn.process_name }}</span>
+                <span class="col-addr">
+                  <span class="addr-local">{{ conn.local }}</span>
+                  @if (conn.remote) {
+                    <span class="addr-arrow">→</span>
+                    <span class="addr-remote" [attr.data-tip]="conn.remote">{{ conn.hostname || conn.remote }}</span>
+                  }
+                </span>
+                <span class="col-state">
+                  <ui-state-badge [state]="conn.state" [tooltip]="stateTip(conn.state)" />
+                </span>
+                <span class="col-pid">{{ conn.pid || '—' }}</span>
+              </div>
+            } @empty {
+              <div class="conn-empty">No active connections</div>
+            }
+          </div>
+          <div class="state-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-success)"></span> Active</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-info)"></span> Listening</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-warning)"></span> Connecting/Closing</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-muted-state)"></span> Finished</span>
+          </div>
+        </ui-section>
+      }
+    }
+
+    @if (store.activeTab() === 'proxy') {
+      <div class="proxy-bar">
+        <span class="proxy-title">Live Capture</span>
+        <span class="proxy-count">{{ store.proxyLog().length }} entries · {{ store.dashboard()?.stats?.total ?? 0 }} active</span>
+      </div>
+      <div class="proxy-scroll">
+        <div class="proxy-header">
+          <span class="px-time">Time</span>
+          <span class="px-dir">Dir</span>
+          <span class="px-proto">Proto</span>
+          <span class="px-proc">Process</span>
+          <span class="px-remote">Remote</span>
+          <span class="px-state">State</span>
+        </div>
+        <div class="proxy-list">
+          @for (entry of store.proxyLog(); track entry.id) {
+            <div class="proxy-row" [title]="proxyTip(entry)">
+              <span class="px-time">{{ proxyTime(entry) }}</span>
+              <span class="px-dir">
+                @if (entry.direction === 'outgoing') {
+                  <span class="dir-out" data-tip="Outgoing — your computer initiated this connection">→</span>
+                } @else if (entry.direction === 'incoming') {
+                  <span class="dir-in" data-tip="Incoming — waiting for connections">←</span>
+                } @else {
+                  <span class="dir-closed" data-tip="Connection has closed">✕</span>
+                }
+              </span>
+              <span class="px-proto">{{ entry.protocol }}</span>
+              <span class="px-proc">{{ entry.process_name }}</span>
+              <span class="px-remote" [attr.data-tip]="entry.remote || entry.local">{{ proxyRemote(entry) }}</span>
+              <span class="px-state">
+                <ui-state-badge [state]="entry.state" [tooltip]="stateTip(entry.state)" />
+              </span>
+            </div>
+          } @empty {
+            @if ((store.dashboard()?.stats?.total ?? 0) > 0) {
+              <div class="conn-empty">No new connections yet — existing connections are stable. Try opening an app or website.</div>
+            } @else {
+              <div class="conn-empty">No connections detected. Go to Dashboard tab to check if network data is loading. If total shows 0, lsof may need permissions.</div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <details class="info-legend">
+      <summary>Connection States</summary>
+      <div class="legend-content">
+        <div class="legend-row"><span class="badge badge-success">ESTABLISHED</span> Active — data is flowing between your computer and the server. This is what you want to see when browsing, streaming, or video calling.</div>
+        <div class="legend-row"><span class="badge badge-info">LISTEN</span> Server mode — this app is waiting for incoming connections on a port. Your web server (nginx), SSH daemon, or Spotify showing local control.</div>
+        <div class="legend-row"><span class="badge badge-warning">SYN_SENT</span> Trying to connect — your computer sent a request and is waiting for a reply. If it stays here, the server is down, blocked by a firewall, or too slow.</div>
+        <div class="legend-row"><span class="badge badge-warning">SYN_RECEIVED</span> Handshake — the server received your connection request and is finalizing the setup. Brief state, rarely seen.</div>
+        <div class="legend-row"><span class="badge badge-warning">CLOSE_WAIT</span> Remote side disconnected — the other end closed the connection but your app hasn't closed it yet. Usually temporary.</div>
+        <div class="legend-row"><span class="badge badge-warning">TIME_WAIT</span> Just closed — the connection ended and the system is waiting briefly to catch any delayed final packets. Normal, fades in seconds.</div>
+        <div class="legend-row"><span class="badge badge-muted">FIN_WAIT_1</span> Started closing — your computer sent the shutdown request to the other end.</div>
+        <div class="legend-row"><span class="badge badge-muted">FIN_WAIT_2</span> Acknowledged — the remote end agreed to close. Waiting for its final goodbye packet.</div>
+        <div class="legend-row"><span class="badge badge-muted">CLOSING / LAST_ACK / CLOSED</span> Finished — connection is terminated or in the final milliseconds of cleanup.</div>
+      </div>
+    </details>
+  </section>
+</main>

@@ -1,17 +1,24 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { NetworkStore, ProxyEntry } from "../../store/network.store";
 import { NetworkInterface, NetConnection, ListeningService, ProcessConnection } from "../../../generated/types";
+import { LiveBadgeComponent } from "../../components/live-badge/live-badge";
+import { SectionComponent } from "../../components/section/section";
+import { StatCardComponent } from "../../components/stat-card/stat-card";
+import { StateBadgeComponent } from "../../components/state-badge/state-badge";
+import { ButtonComponent } from "../../components/button/button";
 
 @Component({
   selector: "app-network",
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: "./network.html",
-  styleUrl: "./network.css",
+  imports: [CommonModule, LiveBadgeComponent, SectionComponent, StatCardComponent, StateBadgeComponent, ButtonComponent],
+  templateUrl: "./network.component.html",
+  styleUrl: "./network.component.css",
 })
 export class Network {
-  constructor(protected store: NetworkStore) {}
+  protected store = inject(NetworkStore);
+  
+  constructor() {}
 
   rateValue(iface: NetworkInterface, direction: "rx" | "tx"): string {
     const bytes = direction === "rx"
@@ -90,28 +97,27 @@ export class Network {
     }
     tip += `State: ${this.stateDescription(e.state)}`;
     return tip;
-}
-
-stateTip(state: string): string {
-  if (!state) return "";
-  switch (state) {
-    case "ESTABLISHED": return "Connection is active — data flows freely between your computer and the server.";
-    case "LISTEN": return "Waiting for incoming connections — this app acts as a server on this port.";
-    case "SYN_SENT": return "Trying to reach the server — waiting for a reply. May be slow or blocked.";
-    case "SYN_RECEIVED": return "Server received your connection request — finalizing handshake.";
-    case "CLOSE_WAIT": return "The remote server has disconnected — waiting to close this end.";
-    case "TIME_WAIT": return "Connection recently closed — holding briefly to catch delayed packets.";
-    case "FIN_WAIT_1": return "Starting to close the connection — sent the shutdown request.";
-    case "FIN_WAIT_2": return "The remote end acknowledged the close — waiting for its final packet.";
-    case "CLOSING": return "Both sides are closing at the same time.";
-    case "LAST_ACK": return "The server is waiting for the final acknowledgment before closing.";
-    case "CLOSED": return "Connection has fully closed.";
-    default: return "";
   }
-}
 
-private formatBytes
-(bytes: number): string {
+  stateTip(state: string): string {
+    if (!state) return "";
+    switch (state) {
+      case "ESTABLISHED": return "Connection is active — data flows freely between your computer and the server.";
+      case "LISTEN": return "Waiting for incoming connections — this app acts as a server on this port.";
+      case "SYN_SENT": return "Trying to reach the server — waiting for a reply. May be slow or blocked.";
+      case "SYN_RECEIVED": return "Server received your connection request — finalizing handshake.";
+      case "CLOSE_WAIT": return "The remote server has disconnected — waiting to close this end.";
+      case "TIME_WAIT": return "Connection recently closed — holding briefly to catch delayed packets.";
+      case "FIN_WAIT_1": return "Starting to close the connection — sent the shutdown request.";
+      case "FIN_WAIT_2": return "The remote end acknowledged the close — waiting for its final packet.";
+      case "CLOSING": return "Both sides are closing at the same time.";
+      case "LAST_ACK": return "The server is waiting for the final acknowledgment before closing.";
+      case "CLOSED": return "Connection has fully closed.";
+      default: return "";
+    }
+  }
+
+  private formatBytes(bytes: number): string {
     if (bytes <= 0) return "0 B";
     const units = ["B", "KB", "MB", "GB"];
     const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
