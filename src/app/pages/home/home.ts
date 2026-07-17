@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { DecimalPipe, CommonModule } from '@angular/common';
 import { GaugeCard } from '../../components/gauge-card/gauge-card';
+import { LiveBadgeComponent } from '../../components/live-badge/live-badge';
+import { SectionComponent } from '../../components/section/section';
 import { SystemStore } from '../../store/system.store';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [DecimalPipe, CommonModule, GaugeCard],
+  imports: [DecimalPipe, CommonModule, GaugeCard, LiveBadgeComponent, SectionComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
