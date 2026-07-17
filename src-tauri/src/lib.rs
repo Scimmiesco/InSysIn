@@ -173,6 +173,7 @@ pub fn run() {
             commands::network::ler_rede,
             commands::wifi::get_internet_info,
             commands::wifi::run_speed_test,
+            commands::wifi::get_local_network_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

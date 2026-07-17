@@ -25,3 +25,20 @@ pub struct InternetDiagnostics {
     pub info: InternetInfo,
     pub speed: Option<SpeedResult>,
 }
+
+#[derive(Serialize, Clone)]
+pub struct DeviceInfo {
+    pub ip: String,
+    pub mac: String,
+    pub vendor: Option<String>,
+}
+
+#[derive(Serialize, Clone)]
+pub struct LocalNetworkInfo {
+    pub local_ip: String,
+    pub gateway: String,
+    pub subnet_mask: String,
+    pub network_range: String,
+    pub dns_servers: Vec<String>,
+    pub devices: Vec<DeviceInfo>,
+}

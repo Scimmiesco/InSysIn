@@ -7,76 +7,87 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use std::path::Path;
 use std::str::FromStr;
-use tauri::State;
+use tauri::Manager;
 
 #[tauri::command]
-pub fn ler_rede(state: State<'_, AppState>) -> Result<NetworkDashboard, String> {
-    let networks = state.networks.lock().map_err(|e| format!("networks lock: {}", e))?;
+pub async fn ler_rede(app: tauri::AppHandle) -> Result<NetworkDashboard, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = app.state::<AppState>();
+        let networks = state
+            .networks
+            .lock()
+            .map_err(|e| format!("networks lock: {}", e))?;
 
-    let mut physical = Vec::new();
-    let mut virtual_ifaces = Vec::new();
-    let mut special = Vec::new();
-    let mut total_received = 0u64;
-    let mut total_transmitted = 0u64;
+        let mut physical = Vec::new();
+        let mut virtual_ifaces = Vec::new();
+        let mut special = Vec::new();
+        let mut total_received = 0u64;
+        let mut total_transmitted = 0u64;
 
-    for (name, data) in &*networks {
-        let ips: Vec<String> = data
-            .ip_networks()
-            .iter()
-            .map(|ip| ip.addr.to_string())
-            .collect();
-        let rx = data.received();
-        let tx = data.transmitted();
-        total_received += rx;
-        total_transmitted += tx;
+        for (name, data) in &*networks {
+            let ips: Vec<String> = data
+                .ip_networks()
+                .iter()
+                .map(|ip| ip.addr.to_string())
+                .collect();
+            let rx = data.received();
+            let tx = data.transmitted();
+            total_received += rx;
+            total_transmitted += tx;
 
-        let iface = NetworkInterface {
-            name: name.clone(),
-            ip_addresses: ips,
-            received_bytes: rx,
-            transmitted_bytes: tx,
-            received_packets: data.total_packets_received(),
-            transmitted_packets: data.total_packets_transmitted(),
-        };
+            let iface = NetworkInterface {
+                name: name.clone(),
+                ip_addresses: ips,
+                received_bytes: rx,
+                transmitted_bytes: tx,
+                received_packets: data.total_packets_received(),
+                transmitted_packets: data.total_packets_transmitted(),
+            };
 
-        let n = name.to_lowercase();
-        if n.starts_with("en") {
-            physical.push(iface);
-        } else if n.starts_with("utun")
-            || n.starts_with("bridge")
-            || n.starts_with("gif")
-            || n.starts_with("stf")
-            || n.starts_with("vnic")
-            || n.starts_with("anpi")
-        {
-            virtual_ifaces.push(iface);
-        } else {
-            special.push(iface);
+            let n = name.to_lowercase();
+            if n.starts_with("en") {
+                physical.push(iface);
+            } else if n.starts_with("utun")
+                || n.starts_with("bridge")
+                || n.starts_with("gif")
+                || n.starts_with("stf")
+                || n.starts_with("vnic")
+                || n.starts_with("anpi")
+            {
+                virtual_ifaces.push(iface);
+            } else {
+                special.push(iface);
+            }
         }
-    }
-    drop(networks);
+        drop(networks);
 
-    let mut dns_cache = state.dns_cache.lock().map_err(|e| format!("dns_cache lock: {}", e))?;
-    let connections = get_connections(&mut dns_cache, &state.dns_cache_path)?;
-    drop(dns_cache);
+        let mut dns_cache = state
+            .dns_cache
+            .lock()
+            .map_err(|e| format!("dns_cache lock: {}", e))?;
+        let connections = get_connections(&mut dns_cache, &state.dns_cache_path)?;
+        drop(dns_cache);
 
-    let stats = compute_stats(&connections);
-    let top_processes = compute_top_processes(&connections);
-    let listening_services = compute_listening_services(&connections);
+        let stats = compute_stats(&connections);
+        let top_processes = compute_top_processes(&connections);
+        let listening_services = compute_listening_services(&connections);
 
-    Ok(NetworkDashboard {
-        traffic: TrafficSummary {
-            total_received,
-            total_transmitted,
-            physical,
-            virtual_ifaces,
-            special,
-        },
-        connections,
-        stats,
-        top_processes,
-        listening_services,
+        Ok(NetworkDashboard {
+            traffic: TrafficSummary {
+                total_received,
+                total_transmitted,
+                physical,
+                virtual_ifaces,
+                special,
+            },
+            connections,
+            stats,
+            top_processes,
+            listening_services,
+        })
     })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 fn get_connections(
@@ -235,12 +246,14 @@ fn compute_stats(connections: &[NetConnection]) -> ConnectionStats {
 fn compute_top_processes(connections: &[NetConnection]) -> Vec<ProcessConnection> {
     let mut map: HashMap<String, ProcessConnection> = HashMap::new();
     for conn in connections {
-        let entry = map.entry(conn.process_name.clone()).or_insert(ProcessConnection {
-            process_name: conn.process_name.clone(),
-            count: 0,
-            tcp_count: 0,
-            udp_count: 0,
-        });
+        let entry = map
+            .entry(conn.process_name.clone())
+            .or_insert(ProcessConnection {
+                process_name: conn.process_name.clone(),
+                count: 0,
+                tcp_count: 0,
+                udp_count: 0,
+            });
         entry.count += 1;
         match conn.protocol.as_str() {
             "TCP" => entry.tcp_count += 1,
