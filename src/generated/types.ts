@@ -142,6 +142,21 @@ export interface HistoricoSistema {
   ram_total: number;
 }
 
+export interface LocalNetworkInfo {
+  local_ip: string;
+  gateway: string;
+  subnet_mask: string;
+  network_range: string;
+  dns_servers: string[];
+  devices: DeviceInfo[];
+}
+
+export interface DeviceInfo {
+  ip: string;
+  mac: string;
+  vendor: string | null;
+}
+
 export interface SpeedResult {
   download_mbps: number;
   upload_mbps: number;
