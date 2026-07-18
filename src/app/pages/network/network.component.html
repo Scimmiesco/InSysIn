@@ -59,10 +59,10 @@
         </ui-section>
 
         <ui-section title="All Connections">
-          <div class="conn-header">
+          <div class="conn-header table-header">
             <span>Proto</span><span>Process</span><span>Local → Remote</span><span>State</span><span>PID</span>
           </div>
-          <div class="conn-list">
+          <div class="conn-list table-scroll">
             @for (i of [1,2,3,4,5,6,7,8]; track i) {
               <div class="conn-row skeleton-row">
                 <div class="skel-line w-80"></div>
@@ -138,13 +138,13 @@
         @if (store.dashboard()?.listening_services?.length) {
           <ui-section title="Listening Services">
             <div class="mini-table">
-              <div class="mini-th">
+              <div class="mini-th table-header">
                 <span>Service</span>
                 <span>Process</span>
                 <span>Address</span>
               </div>
               @for (svc of store.dashboard()?.listening_services; track svc.pid + svc.local) {
-                <div class="mini-tr" [title]="svcTip(svc)">
+                <div class="mini-tr table-row" [title]="svcTip(svc)">
                   <span class="svc-port">{{ svc.port_desc }}</span>
                   <span class="svc-proc">{{ svc.process_name }}</span>
                   <span class="svc-addr">{{ svc.local }}</span>
@@ -157,13 +157,13 @@
         @if (store.dashboard()?.top_processes?.length) {
           <ui-section title="Top Network Processes">
             <div class="mini-table">
-              <div class="mini-th">
+              <div class="mini-th table-header">
                 <span>Process</span>
                 <span>Connections</span>
                 <span>Protocols</span>
               </div>
               @for (pc of store.dashboard()?.top_processes; track pc.process_name) {
-                <div class="mini-tr" [title]="procTip(pc)">
+                <div class="mini-tr table-row" [title]="procTip(pc)">
                   <span class="svc-proc">{{ pc.process_name }}</span>
                   <span class="svc-port">{{ pc.count }}</span>
                   <span class="svc-proto">
@@ -185,16 +185,16 @@
             [value]="store.connectionFilter()"
             (input)="store.setConnectionFilter($any($event.target).value)"
           />
-          <div class="conn-header">
+          <div class="conn-header table-header">
             <span>Proto</span>
             <span>Process</span>
             <span>Local → Remote</span>
             <span>State</span>
             <span>PID</span>
           </div>
-          <div class="conn-list">
+          <div class="conn-list table-scroll">
             @for (conn of filteredConnections; track conn.pid + conn.local + conn.remote) {
-              <div class="conn-row" [title]="connTip(conn)">
+              <div class="conn-row table-row" [title]="connTip(conn)">
                 <span class="col-proto">{{ conn.protocol }}</span>
                 <span class="col-proc">{{ conn.process_name }}</span>
                 <span class="col-addr">
@@ -229,7 +229,7 @@
         <span class="proxy-count">{{ store.proxyLog().length }} entries · {{ store.dashboard()?.stats?.total ?? 0 }} active</span>
       </div>
       <div class="proxy-scroll">
-        <div class="proxy-header">
+        <div class="proxy-header table-header table-sticky-header">
           <span class="px-time">Time</span>
           <span class="px-dir">Dir</span>
           <span class="px-proto">Proto</span>
@@ -237,9 +237,9 @@
           <span class="px-remote">Remote</span>
           <span class="px-state">State</span>
         </div>
-        <div class="proxy-list">
+        <div class="table-scroll">
           @for (entry of store.proxyLog(); track entry.id) {
-            <div class="proxy-row" [title]="proxyTip(entry)">
+            <div class="proxy-row table-row" [title]="proxyTip(entry)">
               <span class="px-time">{{ proxyTime(entry) }}</span>
               <span class="px-dir">
                 @if (entry.direction === 'outgoing') {

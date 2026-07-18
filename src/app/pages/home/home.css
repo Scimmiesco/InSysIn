@@ -56,42 +56,15 @@
 }
 
 .proc-header {
-  display: grid;
-  grid-template-columns: 1fr 72px 80px;
-  gap: var(--sp-gap-grid);
-  padding: 6px 8px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  font-weight: 600;
-  border-bottom: 1px solid var(--border-default);
+  grid-template-columns: 1fr 72px 90px;
 }
 
 .proc-name-h { text-align: left; }
-.proc-val-h { text-align: right; }
-
-.proc-list {
-  max-height: 280px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
+.proc-val-h { text-align: center; }
 
 .proc-row {
-  display: grid;
-  grid-template-columns: 1fr 72px 80px;
-  gap: var(--sp-gap-grid);
-  padding: var(--sp-proc-row);
-  font-size: var(--fs-base);
-  align-items: center;
-  transition: var(--t-hover);
-  border-radius: var(--r-bar);
+  grid-template-columns: 1fr 72px 90px;
 }
-
-.proc-row:hover { background: var(--bg-elevated); }
-.proc-row:nth-child(even) { background: rgba(13, 17, 23, 0.4); }
-.proc-row:nth-child(even):hover { background: var(--bg-elevated); }
 
 .proc-name {
   overflow: hidden;
@@ -102,10 +75,12 @@
 }
 
 .proc-val {
-  text-align: right;
+  text-align: center;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
+  width: 100%;
+  text-wrap: nowrap;
 }
 
 /* ── Skeleton ── */
@@ -186,6 +161,15 @@
   color: var(--color-danger);
 }
 
+.mem-total {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-default);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 /* ── History Sparkline ── */
 
 .chart-wrap {
@@ -224,7 +208,7 @@
 }
 
 .chart-dot-cpu { background: var(--accent); }
-.chart-dot-ram { background: var(--color-info); }
+.chart-dot-ram { background: var(--color-offset-stroke); }
 
 .chart-leg-meta {
   margin-left: auto;
@@ -249,7 +233,11 @@
   justify-content: flex-end;
   height: 100%;
   cursor: help;
+  position: relative;
 }
+
+.core-p { border-top: 2px solid var(--accent); }
+.core-e { border-top: 2px solid var(--accent-muted); }
 
 .core-fill {
   width: 100%;
@@ -261,6 +249,9 @@
 .core-low { background: var(--color-success); }
 .core-mid { background: var(--color-warning); }
 .core-high { background: var(--color-danger); }
+
+.core-p .core-label { color: var(--color-info); }
+.core-e .core-label { color: var(--accent-muted); }
 
 .core-label {
   font-size: 9px;

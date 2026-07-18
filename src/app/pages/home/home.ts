@@ -30,6 +30,7 @@ export class Home {
   get memBreakdown(): {
     app: number; wired: number; compressed: number; cached: number;
     appPct: number; wiredPct: number; compressedPct: number; cachedPct: number;
+    used: number; cachedTotal: number; total: number;
   } | null {
     const m = this.store.sys_info()?.mem_info;
     if (!m) return null;
@@ -45,6 +46,9 @@ export class Home {
       wiredPct: (wired / total) * 100,
       compressedPct: (compressed / total) * 100,
       cachedPct: (cached / total) * 100,
+      used: app + wired + compressed,
+      cachedTotal: cached,
+      total,
     };
   }
 
@@ -100,7 +104,7 @@ export class Home {
     return `${this.formatBytes(used)} / ${this.formatBytes(d.total_bytes)} free ${this.formatBytes(d.available_bytes)}`;
   }
 
-  private formatBytes(bytes: number): string {
+  protected formatBytes(bytes: number): string {
     if (bytes <= 0) return '0 B';
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
