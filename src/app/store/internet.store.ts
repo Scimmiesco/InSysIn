@@ -1,11 +1,11 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, OnDestroy, signal } from "@angular/core";
 import type { InternetDiagnostics, LocalNetworkInfo } from "../../generated/types";
 import { InternetService } from "../services/internet.service";
 
 @Injectable({ providedIn: "root" })
-export class InternetStore {
+export class InternetStore implements OnDestroy {
 
-  private  internetService = inject(InternetService);
+  private internetService = inject(InternetService);
   diagnostics = signal<InternetDiagnostics | null>(null);
   localNetwork = signal<LocalNetworkInfo | null>(null);
   error = signal<string | null>(null);
@@ -14,11 +14,24 @@ export class InternetStore {
   speedError = signal<string | null>(null);
   scanningLocal = signal(true);
 
+  private refreshTimer?: ReturnType<typeof setInterval>;
+  private readonly REFRESH_MS = 60000;
+
   constructor() {}
 
   load(): void {
     this.fetchInfo();
     this.fetchLocalNetwork();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshTimer) clearInterval(this.refreshTimer);
+  }
+
+  private startAutoRefresh(): void {
+    if (this.refreshTimer) return;
+    this.refreshTimer = setInterval(() => this.fetchInfo(), this.REFRESH_MS);
   }
 
   private async fetchInfo(): Promise<void> {
