@@ -106,6 +106,25 @@
 
       <hr class="divider" />
 
+      @if (memBreakdown; as mb) {
+        <ui-section title="Memory Breakdown">
+          <div class="mem-bar">
+            <div class="mem-seg mem-app" [style.width.%]="mb.appPct" [attr.data-tip]="'App: ' + memGbs(mb.app)"></div>
+            <div class="mem-seg mem-wired" [style.width.%]="mb.wiredPct" [attr.data-tip]="'Wired: ' + memGbs(mb.wired)"></div>
+            <div class="mem-seg mem-compressed" [style.width.%]="mb.compressedPct" [attr.data-tip]="'Compressed: ' + memGbs(mb.compressed)"></div>
+            <div class="mem-seg mem-cached" [style.width.%]="mb.cachedPct" [attr.data-tip]="'Cached: ' + memGbs(mb.cached)"></div>
+          </div>
+          <div class="mem-legend">
+            <span class="mem-legend-item"><span class="mem-dot mem-dot-app"></span> App {{ memGbs(mb.app) }}</span>
+            <span class="mem-legend-item"><span class="mem-dot mem-dot-wired"></span> Wired {{ memGbs(mb.wired) }}</span>
+            <span class="mem-legend-item"><span class="mem-dot mem-dot-compressed"></span> Compr. {{ memGbs(mb.compressed) }}</span>
+            <span class="mem-legend-item"><span class="mem-dot mem-dot-cached"></span> Cached {{ memGbs(mb.cached) }}</span>
+          </div>
+        </ui-section>
+
+        <hr class="divider" />
+      }
+
       <ui-section title="Top Processes">
         <div class="proc-header">
           <span class="proc-name-h">Process</span>

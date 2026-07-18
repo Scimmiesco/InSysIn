@@ -126,3 +126,50 @@
   border: 6px solid var(--bg-elevated);
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
+
+/* ── Memory Breakdown ── */
+
+.mem-bar {
+  display: flex;
+  height: 12px;
+  border-radius: var(--r-bar);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.mem-seg {
+  height: 100%;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.mem-app { background: var(--accent); }
+.mem-wired { background: var(--color-warning); }
+.mem-compressed { background: var(--color-muted-state); }
+.mem-cached { background: var(--color-info); }
+
+.mem-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.mem-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mem-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-dot);
+  flex-shrink: 0;
+}
+
+.mem-dot-app { background: var(--accent); }
+.mem-dot-wired { background: var(--color-warning); }
+.mem-dot-compressed { background: var(--color-muted-state); }
+.mem-dot-cached { background: var(--color-info); }

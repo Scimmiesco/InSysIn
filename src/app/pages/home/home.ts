@@ -27,6 +27,31 @@ export class Home {
     return ((d.total_bytes - d.available_bytes) / d.total_bytes) * 100;
   }
 
+  get memBreakdown(): {
+    app: number; wired: number; compressed: number; cached: number;
+    appPct: number; wiredPct: number; compressedPct: number; cachedPct: number;
+  } | null {
+    const m = this.store.sys_info()?.mem_info;
+    if (!m) return null;
+    const total = m.total_memory || 1;
+    const b = m.breakdown;
+    const app = b?.app_memory ?? 0;
+    const wired = b?.wired_memory ?? 0;
+    const compressed = b?.compressed_memory ?? 0;
+    const cached = b?.cached_memory ?? 0;
+    return {
+      app, wired, compressed, cached,
+      appPct: (app / total) * 100,
+      wiredPct: (wired / total) * 100,
+      compressedPct: (compressed / total) * 100,
+      cachedPct: (cached / total) * 100,
+    };
+  }
+
+  memGbs(bytes: number): string {
+    return (bytes / 1_073_741_824).toFixed(1) + ' GB';
+  }
+
   get diskReadRate(): string {
     return `${this.store.diskReadRate()} MB/s`;
   }
