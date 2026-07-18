@@ -281,6 +281,21 @@ async function testInternetInfo(inet) {
   ok('ping_target is cloudflare');
   if (inet.info.ping_target !== 'Cloudflare (1.1.1.1)')
     fail('ping_target', 'Cloudflare (1.1.1.1)', inet.info.ping_target);
+
+  // SSID accuracy test
+  if (inet.info.online) {
+    const sysSsid = sys("/usr/sbin/ipconfig getsummary en0 2>/dev/null | grep 'SSID : ' | sed 's/^[[:space:]]*SSID : //'");
+    if (sysSsid) {
+      ok(`wifi_ssid matches system command (${inet.info.wifi_ssid})`);
+      if (inet.info.wifi_ssid !== sysSsid)
+        fail('wifi_ssid differs from ipconfig', sysSsid, inet.info.wifi_ssid);
+    } else {
+      // Could be on ethernet, no WiFi — then null is acceptable
+      ok('wifi_ssid is null (no WiFi interface or ethernet)');
+      if (inet.info.wifi_ssid !== null)
+        fail('wifi_ssid should be null when ipconfig returns no SSID');
+    }
+  }
 }
 
 async function testHistory(hist) {

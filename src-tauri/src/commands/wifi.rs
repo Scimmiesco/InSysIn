@@ -82,19 +82,97 @@ fn upload_speed() -> Result<f64, String> {
     }
 }
 
+#[cfg(target_os = "macos")]
+fn get_wifi_ssid_macos(iface: &str) -> Option<String> {
+    // Primary: ipconfig getsummary (returns current connected SSID)
+    for cmd in &["/usr/sbin/ipconfig", "/sbin/ipconfig", "ipconfig"] {
+        if let Ok(out) = std::process::Command::new(cmd)
+            .args(["getsummary", iface])
+            .output()
+        {
+            if out.status.success() {
+                let s = String::from_utf8_lossy(&out.stdout);
+                for line in s.lines() {
+                    if let Some(rest) = line.trim().strip_prefix("SSID : ") {
+                        let v = rest.trim();
+                        if !v.is_empty() {
+                            return Some(v.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Fallback: networksetup -getairportnetwork
+    if let Ok(out) = std::process::Command::new("/usr/sbin/networksetup")
+        .args(["-getairportnetwork", iface])
+        .output()
+    {
+        if out.status.success() {
+            let s = String::from_utf8_lossy(&out.stdout);
+            if let Some(rest) = s.trim().strip_prefix("Current Wi-Fi Network: ") {
+                let v = rest.trim();
+                if !v.is_empty() {
+                    return Some(v.to_string());
+                }
+            }
+        }
+    }
+    None
+}
+
 fn get_wifi_ssid() -> Option<String> {
     #[cfg(target_os = "macos")]
     {
-        let out = std::process::Command::new("ipconfig")
-            .args(["getsummary", "en0"])
+        // Primary: ipconfig getsummary (no entitlements needed, always works)
+        for iface in &["en0", "en1"] {
+            if let Some(ssid) = get_wifi_ssid_macos(iface) {
+                return Some(ssid);
+            }
+        }
+        if let Ok(out) = std::process::Command::new("/sbin/ifconfig").output() {
+            let s = String::from_utf8_lossy(&out.stdout);
+            for line in s.lines() {
+                if let Some(name) = line.split(':').next() {
+                    if name.starts_with("en") {
+                        if let Some(ssid) = get_wifi_ssid_macos(name) {
+                            return Some(ssid);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Fallback: kawaiifi crate (works on all platforms if entitlements are set)
+    match kawaiifi::default_interface() {
+        Ok(Some(iface)) => {
+            if let Some(ssid) = iface.ssid() {
+                let v = ssid.to_string();
+                if !v.is_empty() && !v.contains('<') && !v.contains('>') {
+                    return Some(v);
+                }
+            }
+        }
+        _ => {}
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        // Last resort: first preferred network via networksetup
+        if let Ok(out) = std::process::Command::new("/usr/sbin/networksetup")
+            .args(["-listpreferredwirelessnetworks", "en0"])
             .output()
-            .ok()?;
-        let s = String::from_utf8_lossy(&out.stdout);
-        for line in s.lines() {
-            if let Some(rest) = line.trim().strip_prefix("SSID : ") {
-                let v = rest.trim();
-                if !v.is_empty() && !v.starts_with('<') {
-                    return Some(v.to_string());
+        {
+            if out.status.success() {
+                let s = String::from_utf8_lossy(&out.stdout);
+                for (i, line) in s.lines().enumerate() {
+                    if i == 1 {
+                        let v = line.trim().trim_start_matches('\t');
+                        if !v.is_empty() && !v.contains("Preferred networks") && !v.contains('<') {
+                            return Some(v.to_string());
+                        }
+                    }
                 }
             }
         }

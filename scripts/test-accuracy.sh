@@ -50,6 +50,10 @@ if [ "${1:-}" = "--system" ]; then
     echo "--- ARP Table ---"
     arp -a 2>/dev/null | grep -v incomplete | grep -v '224.0.0' | grep -v 'ff:ff:ff:ff:ff:ff'
     echo ""
+    echo "--- WiFi SSID ---"
+    /usr/sbin/ipconfig getsummary en0 2>/dev/null | grep "SSID : " | sed 's/^[[:space:]]*SSID : //' || echo "(not found)"
+    /usr/sbin/networksetup -getairportnetwork en0 2>/dev/null || echo "(networksetup: not available)"
+    echo ""
     echo "--- Processes (top 15 by RSS) ---"
     ps aux --sort=-rss 2>/dev/null | head -16 || ps -eo pid,rss,comm -r 2>/dev/null | head -16
     exit 0
