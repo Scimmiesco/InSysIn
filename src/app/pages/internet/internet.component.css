@@ -12,15 +12,6 @@
   gap: 6px;
 }
 
-.error-banner {
-  padding: 8px 12px;
-  border-radius: var(--r-card-sm);
-  background: rgba(220, 40, 40, 0.12);
-  border: 1px solid rgba(220, 40, 40, 0.3);
-  color: var(--color-danger);
-  font-size: var(--fs-sm);
-}
-
 .status-dot {
   width: 8px;
   height: 8px;

@@ -1,5 +1,8 @@
 <main class="page-host">
   <section class="dashboard-card">
+    @if (store.error()) {
+      <div class="error-banner">{{ store.error() }}</div>
+    }
     @if (store.loading() && !store.sys_info()) {
       <div class="sys-header">
         <div class="header-top">

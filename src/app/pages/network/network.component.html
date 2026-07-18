@@ -1,5 +1,8 @@
 <main class="page-host">
   <section class="dashboard-card">
+    @if (store.error()) {
+      <div class="error-banner">{{ store.error() }}</div>
+    }
     <div class="header-bar">
       <span class="header-title">Network Dashboard</span>
       @if (store.dashboard()) {
