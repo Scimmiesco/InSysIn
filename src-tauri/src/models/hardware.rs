@@ -24,6 +24,8 @@ pub struct MemInfo {
 pub struct DiskUsage {
     pub read_bytes: u64,
     pub write_bytes: u64,
+    pub total_bytes: u64,
+    pub available_bytes: u64,
 }
 
 #[derive(Serialize)]

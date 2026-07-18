@@ -78,6 +78,8 @@ export interface NetworkUsage {
 export interface DiskUsage {
   read_bytes: number;
   write_bytes: number;
+  total_bytes: number;
+  available_bytes: number;
 }
 
 export interface ProcessInfo {

@@ -52,13 +52,19 @@ pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Network
     let disk_usage = {
         let mut read = 0u64;
         let mut write = 0u64;
+        let mut total = 0u64;
+        let mut available = 0u64;
         for disk in disks.list() {
             read += disk.usage().read_bytes;
             write += disk.usage().written_bytes;
+            total += disk.total_space();
+            available += disk.available_space();
         }
         DiskUsage {
             read_bytes: read,
             write_bytes: write,
+            total_bytes: total,
+            available_bytes: available,
         }
     };
 

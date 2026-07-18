@@ -21,6 +21,12 @@ export class Home {
     return (m.used_memory / m.total_memory) * 100;
   }
 
+  get diskPct(): number {
+    const d = this.store.sys_info()?.disk_usage;
+    if (!d || !d.total_bytes) return 0;
+    return ((d.total_bytes - d.available_bytes) / d.total_bytes) * 100;
+  }
+
   get diskReadRate(): string {
     return `${this.store.diskReadRate()} MB/s`;
   }
