@@ -52,6 +52,14 @@ export class Home {
     return (bytes / 1_073_741_824).toFixed(1) + ' GB';
   }
 
+  get swapUsed(): number {
+    return this.store.sys_info()?.mem_info?.used_swap ?? 0;
+  }
+
+  get swapTotal(): number {
+    return this.store.sys_info()?.mem_info?.total_swap ?? 0;
+  }
+
   get diskReadRate(): string {
     return `${this.store.diskReadRate()} MB/s`;
   }

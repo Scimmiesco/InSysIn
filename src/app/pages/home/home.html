@@ -119,6 +119,12 @@
             <span class="mem-legend-item"><span class="mem-dot mem-dot-wired"></span> Wired {{ memGbs(mb.wired) }}</span>
             <span class="mem-legend-item"><span class="mem-dot mem-dot-compressed"></span> Compr. {{ memGbs(mb.compressed) }}</span>
             <span class="mem-legend-item"><span class="mem-dot mem-dot-cached"></span> Cached {{ memGbs(mb.cached) }}</span>
+            @if (swapUsed > 0) {
+              <span class="mem-legend-item swap-item">
+                <span class="mem-dot mem-dot-swap"></span>
+                Swap {{ memGbs(swapUsed) }} / {{ memGbs(swapTotal) }}
+              </span>
+            }
           </div>
         </ui-section>
 

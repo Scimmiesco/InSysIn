@@ -173,3 +173,13 @@
 .mem-dot-wired { background: var(--color-warning); }
 .mem-dot-compressed { background: var(--color-muted-state); }
 .mem-dot-cached { background: var(--color-info); }
+
+.mem-dot-swap {
+  background: var(--color-danger);
+  box-shadow: 0 0 3px rgba(239, 68, 68, 0.4);
+}
+
+.swap-item {
+  font-weight: 600;
+  color: var(--color-danger);
+}
