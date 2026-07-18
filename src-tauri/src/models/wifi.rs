@@ -12,6 +12,7 @@ pub struct InternetInfo {
     pub latency_ms: f64,
     pub ping_target: String,
     pub online: bool,
+    pub wifi_ssid: Option<String>,
 }
 
 #[derive(Serialize, Clone)]

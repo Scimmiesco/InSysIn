@@ -181,5 +181,6 @@ export interface InternetInfo {
   latency_ms: number;
   ping_target: string;
   online: boolean;
+  wifi_ssid: string | null;
 }
 

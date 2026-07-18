@@ -30,7 +30,7 @@
       </span>
       <div class="info-grid">
         @if (store.scanning() && !store.diagnostics()) {
-          @for (i of [1,2,3,4,5,6]; track i) {
+          @for (i of [1,2,3,4,5,6,7]; track i) {
             <div class="info-item info-skel">
               <div class="skel-line w-60"></div>
               <div class="skel-line w-90"></div>
@@ -64,6 +64,10 @@
             [value]="store.diagnostics()?.info?.latency_ms ? store.diagnostics()!.info.latency_ms + ' ms' : '—'"
             [subtitle]="store.diagnostics()?.info?.ping_target ? 'to ' + store.diagnostics()!.info.ping_target : null"
             [tooltip]="'Round-trip time to ' + (store.diagnostics()?.info?.ping_target || 'the nearest server') + '. Lower = faster response for browsing, gaming, and video calls.'" />
+          <ui-info-item
+            key="WiFi"
+            [value]="store.diagnostics()?.info?.wifi_ssid || '—'"
+            tooltip="The name of the WiFi network you are connected to." />
         }
       </div>
     </ui-section>

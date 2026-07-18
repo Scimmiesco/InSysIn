@@ -82,6 +82,49 @@ fn upload_speed() -> Result<f64, String> {
     }
 }
 
+fn get_wifi_ssid() -> Option<String> {
+    #[cfg(target_os = "macos")]
+    {
+        let out = std::process::Command::new("networksetup")
+            .args(["-getairportnetwork", "en0"])
+            .output()
+            .ok()?;
+        let s = String::from_utf8_lossy(&out.stdout);
+        s.split(": ").nth(1).map(|ssid| ssid.trim().to_string())
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        let out = std::process::Command::new("netsh")
+            .args(["wlan", "show", "interfaces"])
+            .output()
+            .ok()?;
+        let s = String::from_utf8_lossy(&out.stdout);
+        for line in s.lines() {
+            if let Some(ssid) = line.trim().strip_prefix("SSID") {
+                let v = ssid.trim_start_matches(&[' ', ':', '\t']).trim();
+                if !v.is_empty() {
+                    return Some(v.to_string());
+                }
+            }
+        }
+        None
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        let out = std::process::Command::new("iwgetid")
+            .arg("-r")
+            .output()
+            .ok()?;
+        let s = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        if s.is_empty() { None } else { Some(s) }
+    }
+
+    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+    { None }
+}
+
 #[tauri::command]
 pub async fn get_internet_info() -> Result<InternetDiagnostics, String> {
     tauri::async_runtime::spawn_blocking(move || {
@@ -94,6 +137,8 @@ pub async fn get_internet_info() -> Result<InternetDiagnostics, String> {
         let mut timezone = String::new();
         let mut asn_str = String::new();
         let mut latency_ms = 0.0f64;
+
+        let ssid = get_wifi_ssid();
 
         let ip_resp = fetch_json("https://ipapi.co/json/");
         match ip_resp {
@@ -144,6 +189,7 @@ pub async fn get_internet_info() -> Result<InternetDiagnostics, String> {
                 latency_ms: (latency_ms * 10.0).round() / 10.0,
                 ping_target: "Cloudflare (1.1.1.1)".into(),
                 online,
+                wifi_ssid: ssid,
             },
             speed: None,
         })
