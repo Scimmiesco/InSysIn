@@ -93,6 +93,20 @@ export class Home {
     return `${this.store.diskReadRate()} MB/s`;
   }
 
+  get diskCapacity(): string {
+    const d = this.store.sys_info()?.disk_usage;
+    if (!d || !d.total_bytes) return '';
+    const used = d.total_bytes - d.available_bytes;
+    return `${this.formatBytes(used)} / ${this.formatBytes(d.total_bytes)} free ${this.formatBytes(d.available_bytes)}`;
+  }
+
+  private formatBytes(bytes: number): string {
+    if (bytes <= 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1) + ' ' + units[i];
+  }
+
   get diskWriteRate(): string {
     return `${this.store.diskWriteRate()} MB/s`;
   }
