@@ -63,8 +63,6 @@
             <span><span class="detail-label">Kernel</span> {{ info.system_info.kernel_version }}</span>
             <span class="detail-sep"></span>
             <span><span class="detail-label">Uptime</span> {{ uptime }}</span>
-          </div>
-          <div class="header-details">
             <span><span class="detail-label">CPU</span> {{ info.system_info.cpu_brand }}</span>
             <span class="detail-sep"></span>
             <span><span class="detail-label">Cores</span> {{ info.system_info.cpu_cores }}</span>
@@ -80,13 +78,13 @@
         <app-gauge-card
           label="CPU"
           [percent]="store.sys_info()?.cpu_usage ?? 0"
-          color="#6366f1"
+          color="--color-offset-stroke"
         />
         <app-gauge-card
           label="Memory"
           [percent]="ramPct"
           [subtitle]="((store.sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' / ' + ((store.sys_info()?.mem_info?.total_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' GB'"
-          color="#6366f1"
+          color="--color-offset-stroke"
         />
         <app-gauge-card
           label="Disk"
@@ -94,14 +92,14 @@
           [subtitle]="diskCapacity"
           [rateTop]="diskReadRate"
           [rateBottom]="diskWriteRate"
-          color="#6366f1"
+          color="--color-offset-stroke"
         />
         <app-gauge-card
           label="Network"
           [percent]="0"
           [rateTop]="netDownRate"
           [rateBottom]="netUpRate"
-          color="#6366f1"
+          color="--color-offset-stroke"
         />
       </div>
 
@@ -148,7 +146,7 @@
           <div class="chart-wrap">
             <svg viewBox="0 0 300 60" class="sparkline" preserveAspectRatio="none">
               <polyline [attr.points]="ramHistoryPoints" fill="none" stroke="var(--color-info)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <polyline [attr.points]="cpuHistoryPoints" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <polyline [attr.points]="cpuHistoryPoints" fill="none" stroke="var(--color-offset-stroke)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
             </svg>
             <div class="chart-legend">
               <span class="chart-leg-item"><span class="chart-dot chart-dot-cpu"></span> CPU</span>

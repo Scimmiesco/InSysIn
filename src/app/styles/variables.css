@@ -2,54 +2,33 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
 
-  --r-card: 6px;
-  --r-card-sm: 4px;
-  --r-bar: 2px;
+  --r-card: 1px;
+  --r-card-sm: 1px;
+  --r-bar: 1px;
   --r-dot: 50%;
 
-  --sp-host: 16px;
-  --sp-gap-host: 12px;
-  --sp-dashboard: 16px;
+  --sp-host: 8px;
+  --sp-gap-host: 8px;
+  --sp-dashboard: 8px;
   --sp-gap-dashboard: 12px;
-  --sp-gap-grid: 8px;
-  --sp-card: 12px;
-  --sp-section: 8px 12px;
-  --sp-proc-row: 4px 8px;
+  --sp-gap-grid: 4px;
+  --sp-card: 8px;
+  --sp-section: 4px 8px;
+  --sp-proc-row: 2px 4px;
 
-  --fs-xs: 11px;
-  --fs-sm: 12px;
-  --fs-base: 13px;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-base: 16px;
   --fs-lg: clamp(18px, 2.5vw, 24px);
   --fs-rate: 16px;
 
-  --bg-body: #000308;
-  --bg-card: #02070f;
-  --bg-surface: #0c1016;
-  --bg-elevated: #1c2128;
-  --border-default: #243137;
-  --border-card: #c8dcf6;
-  --text-primary: #f0f6fc;
-  --text-secondary: #c9d1d9;
-  --text-muted: #8b949e;
-  --accent: #3860bc;
-  --accent-muted: #4653b3;
-  --alpha-grid: rgba(48, 54, 61, 0.3);
-
-  --color-success: #3fb950;
-  --color-info: #58a6ff;
-  --color-warning: #d29922;
-  --color-muted-state: #8b949e;
-  --color-danger: #ef4444;
-  --color-online: #22c55e;
-  --color-scrollbar-hover: #484f58;
-
-  --t-ring: stroke-dashoffset 0.6s ease;
-  --t-hover: background 0.15s;
+  --t-ring: stroke-dashoffset 1s ease;
+  --t-hover: background 0.25s;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
 @keyframes skeleton-pulse {
@@ -67,11 +46,12 @@
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
+  width: fit-content;
   transform: translateX(-50%);
-  padding: 6px 10px;
+  padding: 2px 8px;
   background: var(--bg-elevated);
   color: var(--text-primary);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 400;
   border-radius: var(--r-card-sm);
   white-space: normal;
@@ -80,7 +60,7 @@
   line-height: 1.4;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.3s;
   z-index: 100;
 }
 

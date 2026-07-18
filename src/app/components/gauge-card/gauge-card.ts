@@ -16,7 +16,7 @@ export class GaugeCard {
   @Input() rateTop = '';
   @Input() rateBottom = '';
 
-  private readonly R = 42;
+  private readonly R = 22;
   private readonly C = 2 * Math.PI * this.R;
 
   circumference = this.C;
