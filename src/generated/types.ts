@@ -65,6 +65,7 @@ export interface SysStats {
   system_info: SystemInfo;
   mem_info: MemInfo;
   cpu_usage: number;
+  cpu_per_core: number[];
   processes: ProcessInfo[];
   disk_usage: DiskUsage;
   network_usage: NetworkUsage;

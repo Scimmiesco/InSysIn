@@ -85,6 +85,7 @@ pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Network
 
     let cpu_brand = sys.cpus().first().map(|c| c.brand().to_string()).unwrap_or_default();
     let cpu_cores = sys.cpus().len() as u32;
+    let cpu_per_core: Vec<f32> = sys.cpus().iter().map(|c| c.cpu_usage()).collect();
 
     SysStats {
         system_info: SystemInfo {
@@ -108,6 +109,7 @@ pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Network
             breakdown,
         },
         cpu_usage: sys.global_cpu_usage(),
+        cpu_per_core,
         processes,
         disk_usage,
         network_usage,

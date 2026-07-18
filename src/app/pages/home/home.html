@@ -105,6 +105,17 @@
         />
       </div>
 
+      @if (store.sys_info()?.cpu_per_core?.length) {
+        <div class="cores-bar">
+          @for (usage of store.sys_info()!.cpu_per_core; track $index; let i = $index) {
+            <div class="core-item" [attr.data-tip]="'Core ' + i + ': ' + (usage | number:'1.1-1') + '%'">
+              <div class="core-fill" [style.height.%]="usage" [class.core-high]="usage > 75" [class.core-mid]="usage > 40 && usage <= 75" [class.core-low]="usage <= 40"></div>
+              <span class="core-label">{{ i }}</span>
+            </div>
+          }
+        </div>
+      }
+
       <hr class="divider" />
 
       @if (memBreakdown; as mb) {
