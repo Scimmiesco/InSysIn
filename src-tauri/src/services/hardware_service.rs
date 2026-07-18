@@ -1,4 +1,4 @@
-use crate::models::hardware::{DiskUsage, MemInfo, NetworkUsage, ProcessInfo, SystemInfo, SysStats};
+use crate::models::hardware::{CoreInfo, DiskUsage, MemInfo, NetworkUsage, ProcessInfo, SystemInfo, SysStats};
 use crate::services::memory_service;
 use std::collections::HashMap;
 use sysinfo::{Disks, Networks, ProcessesToUpdate, System};
@@ -85,7 +85,25 @@ pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Network
 
     let cpu_brand = sys.cpus().first().map(|c| c.brand().to_string()).unwrap_or_default();
     let cpu_cores = sys.cpus().len() as u32;
-    let cpu_per_core: Vec<f32> = sys.cpus().iter().map(|c| c.cpu_usage()).collect();
+    let cores: Vec<CoreInfo> = sys
+        .cpus()
+        .iter()
+        .map(|c| {
+            let cname = c.name().to_lowercase();
+            let kind = if cname.contains("pmp") {
+                "performance"
+            } else if cname.contains("emp") {
+                "efficiency"
+            } else {
+                "unknown"
+            };
+            CoreInfo {
+                usage: c.cpu_usage(),
+                name: c.name().to_string(),
+                kind: kind.to_string(),
+            }
+        })
+        .collect();
 
     SysStats {
         system_info: SystemInfo {
@@ -109,7 +127,7 @@ pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Network
             breakdown,
         },
         cpu_usage: sys.global_cpu_usage(),
-        cpu_per_core,
+        cores,
         processes,
         disk_usage,
         network_usage,

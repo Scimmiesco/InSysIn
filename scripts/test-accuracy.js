@@ -88,9 +88,14 @@ async function testSystemInfo(stats) {
   if (si.total_processes <= 0)
     fail('total_processes should be > 0', '> 0', si.total_processes);
 
-  ok('cpu_per_core has entries');
-  if (!stats.cpu_per_core || stats.cpu_per_core.length === 0)
-    fail('cpu_per_core should not be empty', 'non-empty', stats.cpu_per_core);
+  ok('cores has entries');
+  if (!stats.cores || stats.cores.length === 0)
+    fail('cores should not be empty', 'non-empty', stats.cores);
+
+  ok('cores have kind field');
+  for (const c of stats.cores) {
+    if (!c.kind) fail('core missing kind', 'performance|efficiency', c);
+  }
 
   ok(`cpu_usage in valid range [0,100] (${stats.cpu_usage.toFixed(1)}%)`);
   if (stats.cpu_usage < 0 || stats.cpu_usage > 100)

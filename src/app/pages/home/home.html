@@ -103,15 +103,26 @@
         />
       </div>
 
-      @if (store.sys_info()?.cpu_per_core?.length) {
-        <div class="cores-bar">
-          @for (usage of store.sys_info()!.cpu_per_core; track $index; let i = $index) {
-            <div class="core-item" [attr.data-tip]="'Core ' + i + ': ' + (usage | number:'1.1-1') + '%'">
-              <div class="core-fill" [style.height.%]="usage" [class.core-high]="usage > 75" [class.core-mid]="usage > 40 && usage <= 75" [class.core-low]="usage <= 40"></div>
-              <span class="core-label">{{ i }}</span>
-            </div>
-          }
-        </div>
+      @if (store.sys_info()?.cores?.length) {
+        <ui-section title="CPU Cores">
+          <div class="cores-bar">
+            @for (core of store.sys_info()!.cores; track $index) {
+              <div class="core-item"
+                [class.core-p]="core.kind === 'performance'"
+                [class.core-e]="core.kind === 'efficiency'"
+                [attr.data-tip]="core.kind + ' · Core ' + $index + ': ' + (core.usage | number:'1.1-1') + '%'">
+                <div class="core-fill" [style.height.%]="core.usage"
+                  [class.core-high]="core.usage > 75"
+                  [class.core-mid]="core.usage > 40 && core.usage <= 75"
+                  [class.core-low]="core.usage <= 40">
+                </div>
+                <span class="core-label">
+                  @if (core.kind === 'performance') { P } @else if (core.kind === 'efficiency') { E } @else { {{ $index + 1}} }
+                </span>
+              </div>
+            }
+          </div>
+        </ui-section>
       }
 
       <hr class="divider" />
@@ -136,6 +147,7 @@
               </span>
             }
           </div>
+          <div class="mem-total">Used {{ memGbs(mb.used) }} · Cached {{ memGbs(mb.cachedTotal) }} · Total {{ memGbs(mb.total) }}</div>
         </ui-section>
 
         <hr class="divider" />
@@ -145,7 +157,7 @@
         <ui-section title="History (3 min)">
           <div class="chart-wrap">
             <svg viewBox="0 0 300 60" class="sparkline" preserveAspectRatio="none">
-              <polyline [attr.points]="ramHistoryPoints" fill="none" stroke="var(--color-info)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <polyline [attr.points]="ramHistoryPoints" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
               <polyline [attr.points]="cpuHistoryPoints" fill="none" stroke="var(--color-offset-stroke)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
             </svg>
             <div class="chart-legend">
@@ -160,17 +172,17 @@
       }
 
       <ui-section title="Top Processes">
-        <div class="proc-header">
+        <div class="proc-header table-header">
           <span class="proc-name-h">Process</span>
           <span class="proc-val-h">CPU</span>
           <span class="proc-val-h">Memory</span>
         </div>
-        <div class="proc-list">
+        <div class="table-scroll">
           @for(p of store.sys_info()?.processes; track p.pid) {
-          <div class="proc-row">
+          <div class="proc-row table-row">
             <span class="proc-name">{{ p.name }}</span>
             <span class="proc-val">{{ p.cpu_usage | number:'1.1-1' }}%</span>
-            <span class="proc-val">{{ (p.memory_usage / 1_048_576) | number:'1.1-1' }} MB</span>
+            <span class="proc-val">{{ formatBytes(p.memory_usage) }}</span>
           </div>
           }
         </div>

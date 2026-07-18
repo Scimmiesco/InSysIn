@@ -55,11 +55,18 @@ pub struct SystemInfo {
 }
 
 #[derive(Serialize)]
+pub struct CoreInfo {
+    pub usage: f32,
+    pub name: String,
+    pub kind: String,
+}
+
+#[derive(Serialize)]
 pub struct SysStats {
     pub system_info: SystemInfo,
     pub mem_info: MemInfo,
     pub cpu_usage: f32,
-    pub cpu_per_core: Vec<f32>,
+    pub cores: Vec<CoreInfo>,
     pub processes: Vec<ProcessInfo>,
     pub disk_usage: DiskUsage,
     pub network_usage: NetworkUsage,

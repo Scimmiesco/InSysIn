@@ -61,11 +61,17 @@ export interface NetworkInterface {
   transmitted_packets: number;
 }
 
+export interface CoreInfo {
+  usage: number;
+  name: string;
+  kind: string;
+}
+
 export interface SysStats {
   system_info: SystemInfo;
   mem_info: MemInfo;
   cpu_usage: number;
-  cpu_per_core: number[];
+  cores: CoreInfo[];
   processes: ProcessInfo[];
   disk_usage: DiskUsage;
   network_usage: NetworkUsage;
