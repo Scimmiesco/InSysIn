@@ -1,55 +1,54 @@
 use crate::models::hardware::MemBreakdown;
 
-const VM_VM_STATISTICS64: libc::c_int = 6;
+fn parse_vm_stat_val(line: &str, key: &str) -> Option<u64> {
+    let line = line.trim();
+    line.strip_prefix(key)
+        .and_then(|rest| {
+            let rest = rest.trim_end_matches('.');
+            rest.split_whitespace().next()
+        })
+        .and_then(|s| s.replace(',', "").parse::<u64>().ok())
+}
 
 #[cfg(target_os = "macos")]
 pub fn coletar_breakdown() -> Option<MemBreakdown> {
-    use std::mem;
+    let output = std::process::Command::new("vm_stat")
+        .output()
+        .ok()?;
+    let s = String::from_utf8_lossy(&output.stdout);
 
-    let mut page_size = 0u64;
-    let mut size = mem::size_of::<u64>();
-    let mut mib_pg = [libc::CTL_HW, libc::HW_PAGESIZE];
-    let ret = unsafe {
-        libc::sysctl(
-            mib_pg.as_mut_ptr(),
-            mib_pg.len() as u32,
-            &mut page_size as *mut _ as *mut libc::c_void,
-            &mut size,
-            std::ptr::null_mut(),
-            0,
-        )
-    };
-    if ret != 0 || page_size == 0 {
-        return None;
+    let page_size = s
+        .lines()
+        .next()
+        .and_then(|l| l.split('(').nth(1))
+        .and_then(|s| s.split_whitespace().nth(3))
+        .and_then(|s| s.parse::<u64>().ok())?;
+
+    let mut active = 0u64;
+    let mut wire = 0u64;
+    let mut compressed = 0u64;
+    let mut inactive = 0u64;
+    let mut purgeable = 0u64;
+
+    for line in s.lines() {
+        if let Some(v) = parse_vm_stat_val(line, "Pages active:") {
+            active = v;
+        } else if let Some(v) = parse_vm_stat_val(line, "Pages wired down:") {
+            wire = v;
+        } else if let Some(v) = parse_vm_stat_val(line, "Pages occupied by compressor:") {
+            compressed = v;
+        } else if let Some(v) = parse_vm_stat_val(line, "Pages inactive:") {
+            inactive = v;
+        } else if let Some(v) = parse_vm_stat_val(line, "Pages purgeable:") {
+            purgeable = v;
+        }
     }
-
-    let mut vm_stat: libc::vm_statistics64 = unsafe { mem::zeroed() };
-    let mut size = mem::size_of::<libc::vm_statistics64>();
-    let mut mib_vm = [libc::CTL_VM, VM_VM_STATISTICS64];
-    let ret = unsafe {
-        libc::sysctl(
-            mib_vm.as_mut_ptr(),
-            mib_vm.len() as u32,
-            &mut vm_stat as *mut _ as *mut libc::c_void,
-            &mut size,
-            std::ptr::null_mut(),
-            0,
-        )
-    };
-    if ret != 0 {
-        return None;
-    }
-
-    let app = vm_stat.active_count as u64 * page_size;
-    let wired = vm_stat.wire_count as u64 * page_size;
-    let compressed = vm_stat.compressor_page_count as u64 * page_size;
-    let cached = (vm_stat.inactive_count + vm_stat.purgeable_count) as u64 * page_size;
 
     Some(MemBreakdown {
-        app_memory: app,
-        wired_memory: wired,
-        compressed_memory: compressed,
-        cached_memory: cached,
+        app_memory: active * page_size,
+        wired_memory: wire * page_size,
+        compressed_memory: compressed * page_size,
+        cached_memory: (inactive + purgeable) * page_size,
     })
 }
 

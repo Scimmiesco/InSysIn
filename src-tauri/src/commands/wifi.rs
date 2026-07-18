@@ -85,12 +85,20 @@ fn upload_speed() -> Result<f64, String> {
 fn get_wifi_ssid() -> Option<String> {
     #[cfg(target_os = "macos")]
     {
-        let out = std::process::Command::new("networksetup")
-            .args(["-getairportnetwork", "en0"])
+        let out = std::process::Command::new("ipconfig")
+            .args(["getsummary", "en0"])
             .output()
             .ok()?;
         let s = String::from_utf8_lossy(&out.stdout);
-        s.split(": ").nth(1).map(|ssid| ssid.trim().to_string())
+        for line in s.lines() {
+            if let Some(rest) = line.trim().strip_prefix("SSID : ") {
+                let v = rest.trim();
+                if !v.is_empty() && !v.starts_with('<') {
+                    return Some(v.to_string());
+                }
+            }
+        }
+        None
     }
 
     #[cfg(target_os = "windows")]
@@ -313,25 +321,26 @@ fn get_local_network() -> Result<LocalNetworkInfo, String> {
             let parts: Vec<&str> = rest.split_whitespace().collect();
             if !parts.is_empty() && parts[0] != "127.0.0.1" {
                 local_ip = parts[0].to_string();
-            }
-        }
-        if let Some(rest) = trimmed.strip_prefix("netmask ") {
-            let raw = rest.trim();
-            subnet_mask = if let Some(hex) = raw.strip_prefix("0x") {
-                if let Ok(n) = u32::from_str_radix(hex, 16) {
-                    format!(
-                        "{}.{}.{}.{}",
-                        (n >> 24) & 0xff,
-                        (n >> 16) & 0xff,
-                        (n >> 8) & 0xff,
-                        n & 0xff
-                    )
-                } else {
-                    raw.to_string()
+                let nm_idx = parts.iter().position(|&p| p == "netmask");
+                if let Some(i) = nm_idx {
+                    if i + 1 < parts.len() {
+                        let raw = parts[i + 1];
+                        if let Some(hex) = raw.strip_prefix("0x") {
+                            if let Ok(n) = u32::from_str_radix(hex, 16) {
+                                subnet_mask = format!(
+                                    "{}.{}.{}.{}",
+                                    (n >> 24) & 0xff,
+                                    (n >> 16) & 0xff,
+                                    (n >> 8) & 0xff,
+                                    n & 0xff
+                                );
+                            }
+                        } else {
+                            subnet_mask = raw.to_string();
+                        }
+                    }
                 }
-            } else {
-                raw.to_string()
-            };
+            }
         }
     }
 
@@ -446,8 +455,11 @@ fn find_iface_in_section(text: &str, target_line: &str) -> Option<String> {
                 if trimmed.is_empty() {
                     continue;
                 }
-                if let Some(iface) = trimmed.strip_suffix(':') {
-                    return Some(iface.to_string());
+                if let Some(colon) = trimmed.find(':') {
+                    let iface = &trimmed[..colon];
+                    if !iface.is_empty() && iface.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+                        return Some(iface.to_string());
+                    }
                 }
             }
         }

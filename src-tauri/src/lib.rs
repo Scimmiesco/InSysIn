@@ -3,6 +3,7 @@ pub mod db;
 pub mod models;
 pub mod services;
 pub mod state;
+pub mod ws_bridge;
 
 use state::AppState;
 use std::collections::HashMap;
@@ -54,7 +55,7 @@ pub fn run() {
         dns_cache_path: dns_cache_path.clone(),
     };
 
-    let mut builder = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init());
 
     builder
@@ -157,6 +158,12 @@ pub fn run() {
                 &help_menu,
             ])?;
             app.set_menu(menu)?;
+
+            let h = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                ws_bridge::start(h, 9233).await;
+            });
+
             Ok(())
         })
         .on_menu_event(|app, event| {
