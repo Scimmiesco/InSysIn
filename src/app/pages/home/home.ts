@@ -60,6 +60,35 @@ export class Home {
     return this.store.sys_info()?.mem_info?.total_swap ?? 0;
   }
 
+  get cpuHistoryPoints(): string {
+    return this.buildSparkline('cpuPct');
+  }
+
+  get ramHistoryPoints(): string {
+    return this.buildSparkline('ramPct');
+  }
+
+  private buildSparkline(field: 'cpuPct' | 'ramPct'): string {
+    const readings = this.store.memReadings();
+    if (readings.length < 2) return '';
+    const W = 300;
+    const H = 60;
+    const step = Math.max(1, Math.floor(readings.length / 90));
+    const points: string[] = [];
+    for (let i = 0; i < readings.length; i += step) {
+      const x = (i / (readings.length - 1)) * W;
+      const val = Math.min(100, Math.max(0, readings[i][field] * 100));
+      const y = H - (val / 100) * H;
+      points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+    }
+    if (points.length < 2) return '';
+    return points.join(' ');
+  }
+
+  get historyCount(): number {
+    return this.store.memReadings().length;
+  }
+
   get diskReadRate(): string {
     return `${this.store.diskReadRate()} MB/s`;
   }

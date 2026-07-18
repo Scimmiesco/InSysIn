@@ -131,6 +131,24 @@
         <hr class="divider" />
       }
 
+      @if (historyCount > 1) {
+        <ui-section title="History (3 min)">
+          <div class="chart-wrap">
+            <svg viewBox="0 0 300 60" class="sparkline" preserveAspectRatio="none">
+              <polyline [attr.points]="ramHistoryPoints" fill="none" stroke="var(--color-info)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <polyline [attr.points]="cpuHistoryPoints" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+            </svg>
+            <div class="chart-legend">
+              <span class="chart-leg-item"><span class="chart-dot chart-dot-cpu"></span> CPU</span>
+              <span class="chart-leg-item"><span class="chart-dot chart-dot-ram"></span> RAM</span>
+              <span class="chart-leg-meta">{{ historyCount }} points</span>
+            </div>
+          </div>
+        </ui-section>
+
+        <hr class="divider" />
+      }
+
       <ui-section title="Top Processes">
         <div class="proc-header">
           <span class="proc-name-h">Process</span>

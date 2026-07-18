@@ -183,3 +183,48 @@
   font-weight: 600;
   color: var(--color-danger);
 }
+
+/* ── History Sparkline ── */
+
+.chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sparkline {
+  width: 100%;
+  height: 60px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-card-sm);
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.chart-leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chart-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-dot-cpu { background: var(--accent); }
+.chart-dot-ram { background: var(--color-info); }
+
+.chart-leg-meta {
+  margin-left: auto;
+  opacity: 0.6;
+}
