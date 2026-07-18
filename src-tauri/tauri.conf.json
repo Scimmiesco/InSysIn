@@ -10,7 +10,7 @@
     "frontendDist": "../dist/insysin/browser"
   },
   "app": {
-    "withGlobalTauri": true,
+
     "windows": [
       {
         "title": "insysin",
