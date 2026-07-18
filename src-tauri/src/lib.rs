@@ -54,8 +54,15 @@ pub fn run() {
         dns_cache_path: dns_cache_path.clone(),
     };
 
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
+    let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init());
+
+    #[cfg(debug_assertions)]
+    {
+        builder = builder.plugin(tauri_plugin_mcp_bridge::init());
+    }
+
+    builder
         .manage(app_state)
         .setup(|app| {
             let h = app.handle();
