@@ -133,6 +133,30 @@
 }
 
 /* ── Connections Table ── */
+
+.conn-filter {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-card-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.conn-filter::placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+.conn-filter:focus {
+  border-color: var(--accent);
+}
+
 .conn-header {
   display: grid;
   grid-template-columns: 44px 1fr 1fr 100px 50px;

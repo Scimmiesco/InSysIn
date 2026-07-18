@@ -22,6 +22,7 @@ export class NetworkStore implements OnDestroy {
   error = signal<string | null>(null);
 
   activeTab = signal<'dashboard' | 'proxy'>('dashboard');
+  connectionFilter = signal('');
   proxyLog = signal<ProxyEntry[]>([]);
   private prevConns = new Map<string, NetConnection>();
 
@@ -49,6 +50,10 @@ export class NetworkStore implements OnDestroy {
 
   switchTab(tab: 'dashboard' | 'proxy'): void {
     this.activeTab.set(tab);
+  }
+
+  setConnectionFilter(value: string): void {
+    this.connectionFilter.set(value);
   }
 
   allInterfaces(): NetworkInterface[] {

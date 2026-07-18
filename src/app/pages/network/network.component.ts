@@ -17,7 +17,19 @@ import { ButtonComponent } from "../../components/button/button";
 })
 export class Network {
   protected store = inject(NetworkStore);
-  
+
+  get filteredConnections(): NetConnection[] {
+    const conns = this.store.dashboard()?.connections ?? [];
+    const f = this.store.connectionFilter().toLowerCase().trim();
+    if (!f) return conns;
+    return conns.filter(c =>
+      c.process_name.toLowerCase().includes(f) ||
+      c.protocol.toLowerCase().includes(f) ||
+      c.local.toLowerCase().includes(f) ||
+      c.remote.toLowerCase().includes(f) ||
+      String(c.pid).includes(f)
+    );
+  }  
   constructor() {}
 
   rateValue(iface: NetworkInterface, direction: "rx" | "tx"): string {

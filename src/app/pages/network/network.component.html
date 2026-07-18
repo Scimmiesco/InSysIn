@@ -178,6 +178,13 @@
         }
 
         <ui-section title="All Connections">
+          <input
+            class="conn-filter"
+            type="text"
+            placeholder="Filter by process, proto, address, PID..."
+            [value]="store.connectionFilter()"
+            (input)="store.setConnectionFilter($any($event.target).value)"
+          />
           <div class="conn-header">
             <span>Proto</span>
             <span>Process</span>
@@ -186,7 +193,7 @@
             <span>PID</span>
           </div>
           <div class="conn-list">
-            @for (conn of store.dashboard()?.connections; track conn.pid + conn.local + conn.remote) {
+            @for (conn of filteredConnections; track conn.pid + conn.local + conn.remote) {
               <div class="conn-row" [title]="connTip(conn)">
                 <span class="col-proto">{{ conn.protocol }}</span>
                 <span class="col-proc">{{ conn.process_name }}</span>
