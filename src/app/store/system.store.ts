@@ -6,6 +6,7 @@ import { HistoryService } from '../services/history.service';
 
 @Injectable({ providedIn: 'root' })
 export class SystemStore implements OnDestroy {
+  loading = signal(false);
   sys_info = signal<SysStats | null>(null);
   sys_history = signal<HistoricoCompleto | null>(null);
   processos_agrupados = signal<ProcessoAgrupado[]>([]);
@@ -53,6 +54,7 @@ export class SystemStore implements OnDestroy {
 
   async lerDados(): Promise<void> {
     try {
+      this.loading.set(true);
       const res = await this.hardware.carregar();
       this.sys_info.set(res);
       this.error.set(null);
@@ -94,6 +96,8 @@ export class SystemStore implements OnDestroy {
     } catch (erro) {
       this.error.set('Erro ao ler dados do sistema');
       console.error('Erro ao ler hardware:', erro);
+    } finally {
+      this.loading.set(false);
     }
   }
 

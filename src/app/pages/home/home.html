@@ -1,75 +1,124 @@
 <main class="page-host">
   <section class="dashboard-card">
-    @if (store.sys_info(); as info) {
+    @if (store.loading() && !store.sys_info()) {
       <div class="sys-header">
         <div class="header-top">
-          <span class="hostname">{{ info.system_info.hostname }}</span>
-          <ui-live-badge />
+          <div class="skel-line w-70" style="height:20px"></div>
+          <div class="skel-line w-20" style="height:14px"></div>
         </div>
         <div class="header-details">
-          <span><span class="detail-label">OS</span> {{ info.system_info.os_name }} {{ info.system_info.os_version }}</span>
-          <span class="detail-sep"></span>
-          <span><span class="detail-label">Kernel</span> {{ info.system_info.kernel_version }}</span>
-          <span class="detail-sep"></span>
-          <span><span class="detail-label">Uptime</span> {{ uptime }}</span>
+          <div class="skel-line w-50"></div>
+          <div class="skel-line w-30"></div>
+          <div class="skel-line w-20"></div>
         </div>
         <div class="header-details">
-          <span><span class="detail-label">CPU</span> {{ info.system_info.cpu_brand }}</span>
-          <span class="detail-sep"></span>
-          <span><span class="detail-label">Cores</span> {{ info.system_info.cpu_cores }}</span>
-          <span class="detail-sep"></span>
-          <span><span class="detail-label">Processes</span> {{ info.system_info.total_processes }}</span>
+          <div class="skel-line w-40"></div>
+          <div class="skel-line w-15"></div>
+          <div class="skel-line w-25"></div>
         </div>
       </div>
-    }
 
-    <hr class="divider" />
+      <hr class="divider" />
 
-    <div class="gauge-row">
-      <app-gauge-card
-        label="CPU"
-        [percent]="store.sys_info()?.cpu_usage ?? 0"
-        color="#6366f1"
-      />
-      <app-gauge-card
-        label="Memory"
-        [percent]="ramPct"
-        [subtitle]="((store.sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' / ' + ((store.sys_info()?.mem_info?.total_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' GB'"
-        color="#6366f1"
-      />
-      <app-gauge-card
-        label="Disk"
-        [percent]="0"
-        [rateTop]="diskReadRate"
-        [rateBottom]="diskWriteRate"
-        color="#6366f1"
-      />
-      <app-gauge-card
-        label="Network"
-        [percent]="0"
-        [rateTop]="netDownRate"
-        [rateBottom]="netUpRate"
-        color="#6366f1"
-      />
-    </div>
-
-    <hr class="divider" />
-
-    <ui-section title="Top Processes">
-      <div class="proc-header">
-        <span class="proc-name-h">Process</span>
-        <span class="proc-val-h">CPU</span>
-        <span class="proc-val-h">Memory</span>
-      </div>
-      <div class="proc-list">
-        @for(p of store.sys_info()?.processes; track p.pid) {
-        <div class="proc-row">
-          <span class="proc-name">{{ p.name }}</span>
-          <span class="proc-val">{{ p.cpu_usage | number:'1.1-1' }}%</span>
-          <span class="proc-val">{{ (p.memory_usage / 1_048_576) | number:'1.1-1' }} MB</span>
-        </div>
+      <div class="gauge-row">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="gauge-skel">
+            <div class="gauge-skel-ring"></div>
+            <div class="skel-line w-40"></div>
+          </div>
         }
       </div>
-    </ui-section>
+
+      <hr class="divider" />
+
+      <ui-section title="Top Processes">
+        <div class="proc-header">
+          <span class="proc-name-h">Process</span>
+          <span class="proc-val-h">CPU</span>
+          <span class="proc-val-h">Memory</span>
+        </div>
+        <div class="proc-list">
+          @for (i of [1,2,3,4,5,6,7,8]; track i) {
+            <div class="proc-row">
+              <div class="skel-line w-60"></div>
+              <div class="skel-line w-30" style="margin-left:auto"></div>
+              <div class="skel-line w-40" style="margin-left:auto"></div>
+            </div>
+          }
+        </div>
+      </ui-section>
+    } @else {
+      @if (store.sys_info(); as info) {
+        <div class="sys-header">
+          <div class="header-top">
+            <span class="hostname">{{ info.system_info.hostname }}</span>
+            <ui-live-badge />
+          </div>
+          <div class="header-details">
+            <span><span class="detail-label">OS</span> {{ info.system_info.os_name }} {{ info.system_info.os_version }}</span>
+            <span class="detail-sep"></span>
+            <span><span class="detail-label">Kernel</span> {{ info.system_info.kernel_version }}</span>
+            <span class="detail-sep"></span>
+            <span><span class="detail-label">Uptime</span> {{ uptime }}</span>
+          </div>
+          <div class="header-details">
+            <span><span class="detail-label">CPU</span> {{ info.system_info.cpu_brand }}</span>
+            <span class="detail-sep"></span>
+            <span><span class="detail-label">Cores</span> {{ info.system_info.cpu_cores }}</span>
+            <span class="detail-sep"></span>
+            <span><span class="detail-label">Processes</span> {{ info.system_info.total_processes }}</span>
+          </div>
+        </div>
+      }
+
+      <hr class="divider" />
+
+      <div class="gauge-row">
+        <app-gauge-card
+          label="CPU"
+          [percent]="store.sys_info()?.cpu_usage ?? 0"
+          color="#6366f1"
+        />
+        <app-gauge-card
+          label="Memory"
+          [percent]="ramPct"
+          [subtitle]="((store.sys_info()?.mem_info?.used_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' / ' + ((store.sys_info()?.mem_info?.total_memory ?? 0) / 1_073_741_824 | number:'1.1-1') + ' GB'"
+          color="#6366f1"
+        />
+        <app-gauge-card
+          label="Disk"
+          [percent]="0"
+          [rateTop]="diskReadRate"
+          [rateBottom]="diskWriteRate"
+          color="#6366f1"
+        />
+        <app-gauge-card
+          label="Network"
+          [percent]="0"
+          [rateTop]="netDownRate"
+          [rateBottom]="netUpRate"
+          color="#6366f1"
+        />
+      </div>
+
+      <hr class="divider" />
+
+      <ui-section title="Top Processes">
+        <div class="proc-header">
+          <span class="proc-name-h">Process</span>
+          <span class="proc-val-h">CPU</span>
+          <span class="proc-val-h">Memory</span>
+        </div>
+        <div class="proc-list">
+          @for(p of store.sys_info()?.processes; track p.pid) {
+          <div class="proc-row">
+            <span class="proc-name">{{ p.name }}</span>
+            <span class="proc-val">{{ p.cpu_usage | number:'1.1-1' }}%</span>
+            <span class="proc-val">{{ (p.memory_usage / 1_048_576) | number:'1.1-1' }} MB</span>
+          </div>
+          }
+        </div>
+      </ui-section>
+    }
   </section>
 </main>
