@@ -65,16 +65,32 @@ export interface CoreInfo {
   usage: number;
   name: string;
   kind: string;
+  frequency: number;
+  physical: boolean;
+  user: number;
+  system: number;
+}
+
+export interface GpuInfo {
+  model: string;
+  vendor: string;
+  integrated: boolean;
+  cores: number;
+  gpu_temperature: number | null;
 }
 
 export interface SysStats {
   system_info: SystemInfo;
   mem_info: MemInfo;
   cpu_usage: number;
+  cpu_temperature: number | null;
+  cpu_user: number;
+  cpu_system: number;
   cores: CoreInfo[];
   processes: ProcessInfo[];
   disk_usage: DiskUsage;
   network_usage: NetworkUsage;
+  gpu: GpuInfo | null;
 }
 
 export interface NetworkUsage {
@@ -122,6 +138,10 @@ export interface SystemInfo {
   uptime_secs: number;
   cpu_brand: string;
   cpu_cores: number;
+  physical_cores: number;
+  performance_cores: number;
+  efficiency_cores: number;
+  hyperthreading: boolean;
   total_processes: number;
 }
 

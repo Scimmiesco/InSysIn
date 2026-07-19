@@ -103,26 +103,16 @@
         />
       </div>
 
-      @if (store.sys_info()?.cores?.length) {
-        <ui-section title="CPU Cores">
-          <div class="cores-bar">
-            @for (core of store.sys_info()!.cores; track $index) {
-              <div class="core-item"
-                [class.core-p]="core.kind === 'performance'"
-                [class.core-e]="core.kind === 'efficiency'"
-                [attr.data-tip]="core.kind + ' · Core ' + $index + ': ' + (core.usage | number:'1.1-1') + '%'">
-                <div class="core-fill" [style.height.%]="core.usage"
-                  [class.core-high]="core.usage > 75"
-                  [class.core-mid]="core.usage > 40 && core.usage <= 75"
-                  [class.core-low]="core.usage <= 40">
-                </div>
-                <span class="core-label">
-                  @if (core.kind === 'performance') { P } @else if (core.kind === 'efficiency') { E } @else { {{ $index + 1}} }
-                </span>
-              </div>
-            }
-          </div>
-        </ui-section>
+      @if (store.sys_info(); as sys) {
+        <app-cpu-cores
+          [cores]="sys.cores"
+          [systemInfo]="sys.system_info"
+          [cpuUsage]="sys.cpu_usage"
+          [cpuTemperature]="sys.cpu_temperature"
+          [cpuUser]="sys.cpu_user"
+          [cpuSystem]="sys.cpu_system"
+          [gpu]="sys.gpu"
+        />
       }
 
       <hr class="divider" />

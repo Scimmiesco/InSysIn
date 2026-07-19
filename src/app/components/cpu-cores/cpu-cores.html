@@ -1,0 +1,78 @@
+<div class="cards-row">
+  <div class="card-col">
+    <ui-section title="CPU Cores">
+      <div class="panel-summary">
+        <span class="core-chip core-chip-p">{{ pCores }}P</span>
+        @if (eCores > 0) {
+          <span class="core-chip core-chip-e">{{ eCores }}E</span>
+        }
+        <span class="panel-temp" [class.temp-warm]="cpuTemperature !== null && cpuTemperature > 70" [class.temp-hot]="cpuTemperature !== null && cpuTemperature > 85">{{ tempDisplay }}</span>
+      </div>
+
+      <div class="cpu-meta">
+        <span class="cpu-usage-line">Overall <strong>{{ cpuUsage | number:'1.1-1' }}%</strong></span>
+        <div class="cpu-breakdown-bar">
+          <div class="bk-seg bk-user" [style.width.%]="cpuUser" [attr.data-tip]="'User: ' + (cpuUser | number:'1.1-1') + '%'"></div>
+          <div class="bk-seg bk-system" [style.width.%]="cpuSystem" [attr.data-tip]="'System: ' + (cpuSystem | number:'1.1-1') + '%'"></div>
+        </div>
+        <div class="cpu-breakdown-label">
+          <span class="bk-label bk-label-user">User {{ cpuUser | number:'1.1-1' }}%</span>
+          <span class="bk-label bk-label-system">Sys {{ cpuSystem | number:'1.1-1' }}%</span>
+        </div>
+      </div>
+
+      @if (cores.length) {
+        <div class="cores-bar">
+          @for (core of physicalCores; track $index) {
+            <div class="core-item"
+              [class.core-p]="core.kind === 'performance'"
+              [class.core-e]="core.kind === 'efficiency'"
+              [attr.data-tip]="core.kind + ' · ' + (core.frequency > 0 ? (core.frequency | number) + ' MHz · ' : '') + 'Core ' + $index + ': ' + (core.usage | number:'1.1-1') + '%' + ' · User ' + (core.user | number:'1.1-1') + '% / Sys ' + (core.system | number:'1.1-1') + '%'">
+              <span class="core-pct-label">{{ core.usage | number:'1.0-0' }}%</span>
+              <div class="core-fill" [style.height.%]="core.usage"
+                [class.core-high]="core.usage > 75"
+                [class.core-mid]="core.usage > 40 && core.usage <= 75"
+                [class.core-low]="core.usage <= 40">
+              </div>
+              <span class="core-label">
+                @if (core.kind === 'performance') { P } @else if (core.kind === 'efficiency') { E } @else { {{ $index + 1 }} }
+              </span>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-block">No core data</div>
+      }
+    </ui-section>
+  </div>
+
+  @if (gpu; as gpuInfo) {
+    <div class="card-col">
+      <ui-section title="GPU">
+        <div class="panel-summary">
+          <span class="gpu-model">{{ gpuInfo.model }}</span>
+          @if (gpuInfo.gpu_temperature !== null) {
+            <span class="panel-temp">{{ gpuInfo.gpu_temperature | number:'1.0-0' }}°C</span>
+          }
+        </div>
+
+        <div class="gpu-meta">
+          <span class="gpu-detail"><span class="detail-label">Vendor</span> {{ gpuInfo.vendor }}</span>
+          <span class="gpu-detail"><span class="detail-label">Cores</span> {{ gpuInfo.cores }}</span>
+          <span class="gpu-detail"><span class="detail-label">Type</span> {{ gpuInfo.integrated ? 'Integrated' : 'Discrete' }}</span>
+        </div>
+
+        @if (gpuInfo.cores > 0) {
+          <div class="gpu-cores-bar">
+            @for (i of [].constructor(gpuInfo.cores); track i) {
+              <div class="gpu-core-item">
+                <div class="gpu-core-fill gpu-core-default"></div>
+              </div>
+            }
+          </div>
+          <div class="gpu-cores-sum">{{ gpuInfo.cores }} GPU cores</div>
+        }
+      </ui-section>
+    </div>
+  }
+</div>

@@ -17,7 +17,7 @@ import { Component, input } from "@angular/core";
     </div>
   `,
   styles: `
-    :host { display: block; }
+    :host { display: flex; }
     .section-box {
       border: 1px solid var(--border-default);
       border-radius: var(--r-card-sm);
@@ -25,6 +25,7 @@ import { Component, input } from "@angular/core";
       display: flex;
       flex-direction: column;
       gap: 8px;
+      flex:1;
     }
     .section-title {
       display: flex;

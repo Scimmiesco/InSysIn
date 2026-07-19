@@ -3,12 +3,13 @@ import { DecimalPipe, CommonModule } from '@angular/common';
 import { GaugeCard } from '../../components/gauge-card/gauge-card';
 import { LiveBadgeComponent } from '../../components/live-badge/live-badge';
 import { SectionComponent } from '../../components/section/section';
+import { CpuCoresComponent } from '../../components/cpu-cores/cpu-cores';
 import { SystemStore } from '../../store/system.store';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [DecimalPipe, CommonModule, GaugeCard, LiveBadgeComponent, SectionComponent],
+  imports: [DecimalPipe, CommonModule, GaugeCard, LiveBadgeComponent, SectionComponent, CpuCoresComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

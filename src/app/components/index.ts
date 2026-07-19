@@ -8,3 +8,4 @@ export type { ButtonVariant } from "./button/button";
 export { InfoItemComponent } from "./info-item/info-item";
 export { SkeletonComponent } from "./skeleton/skeleton";
 export type { SkeletonVariant } from "./skeleton/skeleton";
+export { CpuCoresComponent } from "./cpu-cores/cpu-cores";

@@ -1,0 +1,244 @@
+:host { display: block; }
+
+.cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-gap-grid);
+}
+
+.card-col{
+  display: flex;
+  flex:1;
+}
+
+.panel-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-temp {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.temp-warm {
+  color: var(--color-warning);
+}
+
+.temp-hot {
+  color: var(--color-danger);
+}
+
+/* ── Core chips ── */
+ui.section{
+  width: 100%;
+}
+.core-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+}
+
+.core-chip-p {
+  background: rgba(56, 96, 188, 0.18);
+  color: var(--accent);
+}
+
+.core-chip-e {
+  background: rgba(70, 83, 179, 0.15);
+  color: var(--accent-muted);
+}
+
+/* ── CPU meta ── */
+
+.cpu-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpu-usage-line {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.cpu-usage-line strong {
+  color: var(--text-primary);
+}
+
+.cpu-breakdown-bar {
+  display: flex;
+  height: 6px;
+  border-radius: var(--r-bar);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.bk-seg {
+  height: 100%;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.bk-user {
+  background: var(--accent);
+}
+
+.bk-system {
+  background: var(--color-offset-stroke);
+}
+
+.cpu-breakdown-label {
+  display: flex;
+  gap: 12px;
+  font-size: var(--fs-xs);
+}
+
+.bk-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bk-label-user {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.bk-label-system {
+  color: var(--color-offset-stroke);
+  font-weight: 600;
+}
+
+/* ── Per-core bars ── */
+
+.cores-bar {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  justify-content: center;
+  height: 80px;
+  padding-top: 14px;
+  width: 100%;
+}
+
+.core-item {
+  flex: 0 1 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  height: 100%;
+  cursor: help;
+}
+
+.core-p { border-top: 2px solid var(--accent); }
+.core-e { border-top: 2px solid var(--accent-muted); }
+
+.core-pct-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.core-fill {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.4s ease, background 0.4s ease;
+  min-height: 2px;
+}
+
+.core-low { background: var(--color-success); }
+.core-mid { background: var(--color-warning); }
+.core-high { background: var(--color-danger); }
+
+.core-label {
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+.core-p .core-label { color: var(--accent); }
+.core-e .core-label { color: var(--accent-muted); }
+
+/* ── GPU ── */
+
+.gpu-model {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.gpu-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: var(--fs-xs);
+}
+
+.gpu-detail {
+  color: var(--text-muted);
+}
+
+.detail-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.gpu-cores-bar {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  justify-content: center;
+  height: 40px;
+  padding-top: 6px;
+}
+
+.gpu-core-item {
+  flex: 0 1 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.gpu-core-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 3px 3px 0 0;
+}
+
+.gpu-core-default {
+  background: var(--accent-muted);
+  opacity: 0.5;
+}
+
+.gpu-cores-sum {
+  text-align: center;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* ── Empty ── */
+
+.empty-block {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  padding: 16px;
+  text-align: center;
+  border: 1px dashed var(--border-default);
+  border-radius: var(--r-card-sm);
+}

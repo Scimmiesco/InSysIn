@@ -51,6 +51,10 @@ pub struct SystemInfo {
     pub uptime_secs: u64,
     pub cpu_brand: String,
     pub cpu_cores: u32,
+    pub physical_cores: u32,
+    pub performance_cores: u32,
+    pub efficiency_cores: u32,
+    pub hyperthreading: bool,
     pub total_processes: usize,
 }
 
@@ -59,6 +63,19 @@ pub struct CoreInfo {
     pub usage: f32,
     pub name: String,
     pub kind: String,
+    pub frequency: u64,
+    pub physical: bool,
+    pub user: f32,
+    pub system: f32,
+}
+
+#[derive(Serialize, Clone)]
+pub struct GpuInfo {
+    pub model: String,
+    pub vendor: String,
+    pub integrated: bool,
+    pub cores: u32,
+    pub gpu_temperature: Option<f32>,
 }
 
 #[derive(Serialize)]
@@ -66,8 +83,12 @@ pub struct SysStats {
     pub system_info: SystemInfo,
     pub mem_info: MemInfo,
     pub cpu_usage: f32,
+    pub cpu_temperature: Option<f32>,
+    pub cpu_user: f32,
+    pub cpu_system: f32,
     pub cores: Vec<CoreInfo>,
     pub processes: Vec<ProcessInfo>,
     pub disk_usage: DiskUsage,
     pub network_usage: NetworkUsage,
+    pub gpu: Option<GpuInfo>,
 }
