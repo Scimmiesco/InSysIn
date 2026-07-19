@@ -34,7 +34,7 @@
 }
 
 /* ── Core chips ── */
-ui.section{
+ui-section{
   width: 100%;
 }
 .core-chip {
@@ -140,9 +140,6 @@ ui.section{
   cursor: help;
 }
 
-.core-p { border-top: 2px solid var(--accent); }
-.core-e { border-top: 2px solid var(--accent-muted); }
-
 .core-pct-label {
   font-size: 10px;
   font-weight: 600;
@@ -167,10 +164,8 @@ ui.section{
   font-weight: 600;
   flex-shrink: 0;
   font-family: var(--font-mono);
+  color: var(--accent);
 }
-
-.core-p .core-label { color: var(--accent); }
-.core-e .core-label { color: var(--accent-muted); }
 
 /* ── GPU ── */
 

@@ -1,6 +1,6 @@
 use crate::models::hardware::{CoreInfo, DiskUsage, GpuInfo, MemInfo, NetworkUsage, ProcessInfo, SystemInfo, SysStats};
 use crate::services::memory_service;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
 use sysinfo::{Disks, Networks, ProcessesToUpdate, System};
 
@@ -409,7 +409,17 @@ pub fn coletar_dados(sys: &mut System, disks: &mut Disks, networks: &mut Network
         let mut write = 0u64;
         let mut total = 0u64;
         let mut available = 0u64;
+        let mut seen = HashSet::new();
         for disk in disks.list() {
+            let name = disk.name().to_string_lossy().to_string();
+            let base = name
+                .split('s')
+                .next()
+                .map(|s| s.to_string())
+                .unwrap_or(name);
+            if !seen.insert(base) {
+                continue;
+            }
             read += disk.usage().read_bytes;
             write += disk.usage().written_bytes;
             total += disk.total_space();

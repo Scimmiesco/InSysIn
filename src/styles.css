@@ -9,3 +9,9 @@ h4 {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: var(--r-bar); border: 2px solid transparent; background-clip: content-box; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-scrollbar-hover); background-clip: content-box; }
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-default);
+  margin: 0;
+}

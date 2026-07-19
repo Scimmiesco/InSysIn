@@ -19,9 +19,13 @@
           <span class="bk-label bk-label-user">User {{ cpuUser | number:'1.1-1' }}%</span>
           <span class="bk-label bk-label-system">Sys {{ cpuSystem | number:'1.1-1' }}%</span>
         </div>
+
+
       </div>
 
+
       @if (cores.length) {
+      <div class="divider"></div>
         <div class="cores-bar">
           @for (core of physicalCores; track $index) {
             <div class="core-item"
