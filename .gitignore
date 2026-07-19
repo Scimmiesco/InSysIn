@@ -52,3 +52,4 @@ Thumbs.db
 
 /mcp-server
 package-lock.json
+src-tauri/historico_sistema.sqlite
