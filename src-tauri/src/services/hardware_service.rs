@@ -72,12 +72,14 @@ fn physical_core_count() -> (u32, u32) {
 fn collect_cpu_temperature() -> Option<f32> {
     #[cfg(target_os = "macos")]
     {
-        let temp_raw = sysctl_u32("dev.cpu.0.temperature");
-        if let Some(t) = temp_raw {
+        if let Some(t) = sysctl_u32("dev.cpu.0.temperature") {
             let celsius = t as f32 / 10.0;
             if celsius > 0.0 && celsius < 150.0 {
                 return Some(celsius);
             }
+        }
+        if let Some(t) = macos_battery_temperature() {
+            return Some(t);
         }
         None
     }
@@ -114,6 +116,35 @@ fn collect_cpu_temperature() -> Option<f32> {
     {
         None
     }
+}
+
+#[cfg(target_os = "macos")]
+fn macos_battery_temperature() -> Option<f32> {
+    let output = std::process::Command::new("ioreg")
+        .args(["-c", "AppleSmartBattery", "-r", "-l"])
+        .output()
+        .ok()?;
+    let s = String::from_utf8_lossy(&output.stdout);
+    for line in s.lines() {
+        let trimmed = line.trim();
+        if let Some(val_str) = trimmed.strip_prefix("\"VirtualTemperature\" = ") {
+            if let Ok(val) = val_str.trim_end_matches(';').parse::<f32>() {
+                let celsius = val / 100.0;
+                if celsius > 0.0 && celsius < 150.0 {
+                    return Some(celsius);
+                }
+            }
+        }
+        if let Some(val_str) = trimmed.strip_prefix("\"Temperature\" = ") {
+            if let Ok(val) = val_str.trim_end_matches(';').parse::<f32>() {
+                let celsius = val / 100.0;
+                if celsius > 0.0 && celsius < 150.0 {
+                    return Some(celsius);
+                }
+            }
+        }
+    }
+    None
 }
 
 fn collect_gpu_temperature() -> Option<f32> {
